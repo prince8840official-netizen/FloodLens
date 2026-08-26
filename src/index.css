@@ -1,0 +1,206 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  * {
+    @apply border-flood-border;
+  }
+  
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply bg-flood-bg text-flood-text font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-flood-card/80 backdrop-blur-sm border border-flood-border;
+  }
+  
+  .glass-strong {
+    @apply bg-flood-card/95 backdrop-blur-md border border-flood-border;
+  }
+  
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-flood-bg disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-primary {
+    @apply btn bg-flood-primary text-flood-bg hover:bg-cyan-400 active:bg-cyan-600 focus-visible:ring-flood-primary;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-flood-card text-flood-text hover:bg-flood-border active:bg-flood-border/80 focus-visible:ring-flood-muted;
+  }
+  
+  .btn-danger {
+    @apply btn bg-flood-danger text-white hover:bg-red-500 active:bg-red-600 focus-visible:ring-flood-danger;
+  }
+  
+  .btn-success {
+    @apply btn bg-flood-success text-white hover:bg-green-500 active:bg-green-600 focus-visible:ring-flood-success;
+  }
+  
+  .btn-warning {
+    @apply btn bg-flood-warning text-flood-bg hover:bg-yellow-400 active:bg-yellow-500 focus-visible:ring-flood-warning;
+  }
+  
+  .btn-ghost {
+    @apply btn bg-transparent text-flood-text hover:bg-flood-border active:bg-flood-border/80 focus-visible:ring-flood-muted;
+  }
+  
+  .card {
+    @apply glass rounded-xl p-4 transition-all duration-200;
+  }
+  
+  .card-hover {
+    @apply card hover:bg-flood-card hover:border-flood-primary/30 hover:shadow-lg hover:shadow-flood-primary/5;
+  }
+  
+  .input {
+    @apply w-full px-3 py-2 bg-flood-bg border border-flood-border rounded-lg text-flood-text placeholder-flood-muted focus:outline-none focus:ring-2 focus:ring-flood-primary focus:border-transparent transition-all duration-200;
+  }
+  
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .badge-critical {
+    @apply badge bg-flood-critical/20 text-flood-critical border border-flood-critical/30;
+  }
+  
+  .badge-high {
+    @apply badge bg-flood-danger/20 text-flood-danger border border-flood-danger/30;
+  }
+  
+  .badge-moderate {
+    @apply badge bg-flood-warning/20 text-flood-warning border border-flood-warning/30;
+  }
+  
+  .badge-normal {
+    @apply badge bg-flood-primary/20 text-flood-primary border border-flood-primary/30;
+  }
+  
+  .badge-success {
+    @apply badge bg-flood-success/20 text-flood-success border border-flood-success/30;
+  }
+  
+  .badge-info {
+    @apply badge bg-flood-primary/20 text-flood-primary border border-flood-primary/30;
+  }
+  
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+  
+  .status-critical { @apply status-dot bg-flood-critical animate-pulse; }
+  .status-high { @apply status-dot bg-flood-danger; }
+  .status-moderate { @apply status-dot bg-flood-warning; }
+  .status-normal { @apply status-dot bg-flood-primary; }
+  .status-resolved { @apply status-dot bg-flood-success; }
+  .status-active { @apply status-dot bg-flood-primary animate-pulse; }
+  .status-enroute { @apply status-dot bg-flood-warning animate-pulse; }
+  .status-idle { @apply status-dot bg-flood-success; }
+  
+  .scrollbar-thin {
+    @apply scrollbar-thin scrollbar-track-flood-bg scrollbar-thumb-flood-border hover:scrollbar-thumb-flood-muted;
+  }
+  
+  .kpi-card {
+    @apply glass-strong rounded-xl p-5 hover:border-flood-primary/30 transition-all duration-300;
+  }
+  
+  .table-container {
+    @apply overflow-x-auto rounded-lg border border-flood-border;
+  }
+  
+  .table {
+    @apply w-full text-sm;
+  }
+  
+  .table th {
+    @apply px-4 py-3 text-left font-medium text-flood-muted uppercase tracking-wider bg-flood-card/50 border-b border-flood-border;
+  }
+  
+  .table td {
+    @apply px-4 py-3 border-b border-flood-border/50 transition-colors;
+  }
+  
+  .table tbody tr {
+    @apply hover:bg-flood-card/50 cursor-pointer transition-colors;
+  }
+  
+  .table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .animate-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Leaflet overrides */
+.leaflet-container {
+  @apply bg-flood-bg;
+  font-family: inherit !important;
+}
+
+.leaflet-popup-content-wrapper {
+  @apply bg-flood-card border-flood-border rounded-lg shadow-xl;
+}
+
+.leaflet-popup-content {
+  @apply text-flood-text p-2 m-0;
+}
+
+.leaflet-popup-tip {
+  @apply bg-flood-card border-flood-border;
+}
+
+.leaflet-control-container .leaflet-control {
+  @apply bg-flood-card border-flood-border text-flood-text;
+}
+
+.leaflet-control-layers {
+  @apply bg-flood-card border-flood-border rounded-lg;
+}
+
+.leaflet-control-layers-expanded {
+  @apply bg-flood-card border-flood-border;
+}
+
+.leaflet-control-zoom a {
+  @apply bg-flood-card border-flood-border text-flood-text hover:bg-flood-border transition-colors;
+}
+
+.leaflet-control-attribution {
+  @apply bg-flood-card/80 backdrop-blur-sm text-flood-muted text-xs;
+}
