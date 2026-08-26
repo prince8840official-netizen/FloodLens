@@ -94,21 +94,21 @@ export function Landing() {
                   LIVE SYSTEM — DEMO DATA
                 </Badge>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-flood-text leading-tight mb-6">
-                  AI-Powered Urban Flood Intelligence
+                  Urban FloodIntel Prediction System
                 </h1>
                 <p className="text-lg sm:text-xl text-flood-muted mb-8 max-w-xl">
                   Predict flooding before it happens. See it when it occurs. Understand the cause. 
                   Automatically coordinate the response. Verify the resolution.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                   <Link to="/dashboard">
-                    <Button size="lg" icon={<ArrowRight className="w-5 h-5" />} iconPosition="right">
+                    <Button size="lg" icon={<ArrowRight className="w-5 h-5" />} iconPosition="right" className="w-full sm:w-auto">
                       Launch Command Center
                     </Button>
                   </Link>
-                  <Button variant="secondary" size="lg" onClick={() => document.getElementById('solution')?.scrollIntoView({ behavior: 'smooth' })}>
+                  <Button variant="secondary" size="lg" onClick={() => document.getElementById('solution')?.scrollIntoView({ behavior: 'smooth' })} className="w-full sm:w-auto py-4 px-6 text-base sm:text-lg min-h-[48px]">
                     Explore FloodLens
-                    <ChevronDown className="w-5 h-5" />
+                    <ChevronDown className="w-5 h-5 flex-shrink-0" />
                   </Button>
                 </div>
               </div>
