@@ -11,7 +11,6 @@ import { Badge, StatusBadge } from '../../components/ui/Badge';
 import { KPICard } from '../../components/ui/KPICard';
 import { FloodMap } from '../../components/map/FloodMap';
 import { LayerControl } from '../../components/map/LayerControl';
-import { ErrorBoundary } from '../../components/ui/ErrorBoundary';
 import { useApp } from '../../context/AppContext';
 import { mockRoads, mockIncidents, mockTeams, mockDrains, mockCameraFeeds, mockMapLayers, getSeverityColor, formatTime, formatDistance } from '../../data/mockData';
 import type { Road, FloodIncident, ResponseTeam } from '../../types';
@@ -125,38 +124,23 @@ export function Dashboard() {
               <LayerControl layers={mockMapLayers} activeLayers={activeMapLayers} onToggle={handleLayerToggle} />
             </div>
             <CardContent className="p-0">
-              <ErrorBoundary
-                fallback={
-                  <div className="h-[520px] flex items-center justify-center">
-                    <div className="text-center p-8">
-                      <AlertTriangle className="w-16 h-16 text-flood-danger/50 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-flood-text mb-2">Map Unavailable</h3>
-                      <p className="text-flood-muted text-sm mb-4">Satellite imagery temporarily unavailable</p>
-                      <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
-                        Reload Page
-                      </Button>
-                    </div>
-                  </div>
-                }
-              >
-                <FloodMap
-                  roads={roads}
-                  drains={drains}
-                  incidents={incidents}
-                  teams={teams}
-                  cameras={cameras}
-                  activeLayers={activeMapLayers}
-                  center={mapCenter}
-                  zoom={mapZoom}
-                  onRoadClick={onRoadClick}
-                  onDrainClick={onDrainClick}
-                  onIncidentClick={onIncidentClick}
-                  onTeamClick={onTeamClick}
-                  onCameraClick={onCameraClick}
-                  onMapClick={onMapClick}
-                  height="520px"
-                />
-              </ErrorBoundary>
+              <FloodMap
+                roads={roads}
+                drains={drains}
+                incidents={incidents}
+                teams={teams}
+                cameras={cameras}
+                activeLayers={activeMapLayers}
+                center={mapCenter}
+                zoom={mapZoom}
+                onRoadClick={onRoadClick}
+                onDrainClick={onDrainClick}
+                onIncidentClick={onIncidentClick}
+                onTeamClick={onTeamClick}
+                onCameraClick={onCameraClick}
+                onMapClick={onMapClick}
+                height="520px"
+              />
             </CardContent>
           </Card>
 

@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, LayerGroup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { clsx } from 'clsx';
 import type { Road, Drain, FloodIncident, ResponseTeam, CameraFeed, Coordinates, MapLayer } from '../../types';
 import { getSeverityColor } from '../../data/mockData';
-import { Tooltip } from '../../components/ui/Tooltip';
 
 const kanpurCenter: Coordinates = { lat: 26.4499, lng: 80.3319 };
 
@@ -24,14 +23,6 @@ function MapReadyHandler({ onReady }: { onReady: (map: L.Map) => void }) {
   return null;
 }
 
-function FlyToHandler({ center, zoom }: { center: Coordinates; zoom: number }) {
-  const map = useMap();
-  useEffect(() => {
-    map.flyTo([center.lat, center.lng], zoom, { animate: true, duration: 1.2 });
-  }, [center, zoom]);
-  return null;
-}
-
 interface MapMarkersProps {
   roads: Road[];
   drains: Drain[];
@@ -46,63 +37,16 @@ interface MapMarkersProps {
   onCameraClick: (camera: CameraFeed) => void;
   selectedRoad?: Road;
   selectedIncident?: FloodIncident;
-  roadwatchIncidents?: Array<{
-    id: string;
-    coordinates: Coordinates;
-    severity: string;
-    status: string;
-    confidence: number;
-    imageUrl: string;
-    location?: { address?: string };
-  }>;
 }
 
 function MapMarkers({ 
   roads, drains, incidents, teams, cameras, activeLayers, 
   onRoadClick, onDrainClick, onIncidentClick, onTeamClick, onCameraClick,
-  selectedRoad, selectedIncident, roadwatchIncidents 
+  selectedRoad, selectedIncident 
 }: MapMarkersProps) {
   const floodedRoads = roads.filter(r => r.severity === 'critical' || r.severity === 'high');
   const predictedRoads = roads.filter(r => r.severity === 'moderate' && r.probability > 50);
   const blockedDrains = drains.filter(d => d.status === 'blocked' || d.blockageProbability > 70);
-
-  // Generate road flood segments from high-risk roads
-  const roadFloodSegments = roads
-    .filter(r => r.severity === 'critical' || r.severity === 'high' || (r.severity === 'moderate' && r.probability > 60))
-    .map(road => ({
-      id: `seg-${road.id}`,
-      coordinates: road.coordinates,
-      severity: road.severity,
-      probability: road.probability,
-      name: road.name,
-    }));
-
-  // Generate flood hotspots from incident clusters
-  const floodHotspots = incidents
-    .filter(i => i.severity === 'critical' || i.severity === 'high')
-    .reduce((acc: Array<{lat: number; lng: number; intensity: number}>, inc) => {
-      const existing = acc.find(h => 
-        Math.abs(h.lat - inc.coordinates.lat) < 0.01 && Math.abs(h.lng - inc.coordinates.lng) < 0.01
-      );
-      if (existing) {
-        existing.intensity += 1;
-      } else {
-        acc.push({ lat: inc.coordinates.lat, lng: inc.coordinates.lng, intensity: 1 });
-      }
-      return acc;
-    }, []);
-
-  // Municipal boundaries (Kanpur zones)
-  const municipalBoundaries = [
-    { name: 'Zone 1', coordinates: [[26.48, 80.30], [26.48, 80.35], [26.44, 80.35], [26.44, 80.30], [26.48, 80.30]] as [number, number][] },
-    { name: 'Zone 2', coordinates: [[26.44, 80.30], [26.44, 80.35], [26.40, 80.35], [26.40, 80.30], [26.44, 80.30]] as [number, number][] },
-    { name: 'Zone 3', coordinates: [[26.40, 80.30], [26.40, 80.35], [26.36, 80.35], [26.36, 80.30], [26.40, 80.30]] as [number, number][] },
-  ];
-
-  // Water bodies (major water bodies in Kanpur area)
-  const waterBodies = [
-    { name: 'Ganga River', coordinates: [[26.50, 80.35], [26.48, 80.36], [26.40, 80.38], [26.38, 80.39], [26.35, 80.40]] as [number, number][] },
-  ];
 
   const handlePolylineClick = (callback: () => void) => ({
     onClick: callback
@@ -162,103 +106,6 @@ function MapMarkers({
                 <div className="p-1">
                   <strong>{road.name}</strong> ({road.id})<br />
                   <span className="text-flood-warning">PREDICTED</span> - {road.probability}% in {road.expectedOnset}min
-                </div>
-              </Popup>
-            </Polyline>
-          ))}
-        </LayerGroup>
-      )}
-
-      {activeLayers.includes('road-flood-segments') && (
-        <LayerGroup>
-          {roadFloodSegments.map(segment => (
-            <Polyline
-              key={segment.id}
-              positions={segment.coordinates.map(c => [c.lat, c.lng])}
-              color={getSeverityColor(segment.severity)}
-              weight={5}
-              opacity={0.7}
-              dashArray="10, 5"
-              className="leaflet-interactive"
-              eventHandlers={{
-                click: () => onRoadClick({ id: segment.id, name: segment.name, coordinates: segment.coordinates } as any)
-              }}
-            >
-              <Popup>
-                <div className="p-1 min-w-[180px]">
-                  <strong>{segment.name}</strong> ({segment.id})<br />
-                  <span className={clsx('badge', getSeverityColor(segment.severity).includes('flood-critical') && 'badge-critical', getSeverityColor(segment.severity).includes('flood-danger') && 'badge-high', getSeverityColor(segment.severity).includes('flood-warning') && 'badge-moderate')}>
-                    {segment.severity.toUpperCase()}
-                  </span><br />
-                  Flood Risk: {segment.probability}%
-                </div>
-              </Popup>
-            </Polyline>
-          ))}
-        </LayerGroup>
-      )}
-
-      {activeLayers.includes('flood-hotspots') && (
-        <LayerGroup>
-          {floodHotspots.map((hotspot, index) => (
-            <CircleMarker
-              key={`hotspot-${index}`}
-              center={[hotspot.lat, hotspot.lng]}
-              radius={Math.min(20 + hotspot.intensity * 5, 50)}
-              color="#ef4444"
-              fillColor="#ef4444"
-              fillOpacity={0.3}
-              weight={0}
-              className="leaflet-interactive"
-            >
-              <Popup>
-                <div className="p-1">
-                  <strong>Flood Hotspot #{index + 1}</strong><br />
-                  Incident Count: {hotspot.intensity}<br />
-                  Intensity: {hotspot.intensity > 3 ? 'High' : hotspot.intensity > 1 ? 'Medium' : 'Low'}
-                </div>
-              </Popup>
-            </CircleMarker>
-          ))}
-        </LayerGroup>
-      )}
-
-      {activeLayers.includes('municipal-boundaries') && (
-        <LayerGroup>
-          {municipalBoundaries.map((boundary, index) => (
-            <Polyline
-              key={`boundary-${index}`}
-              positions={boundary.coordinates}
-              color="#64748b"
-              weight={2}
-              opacity={0.6}
-              dashArray="5, 5"
-              className="leaflet-interactive"
-            >
-              <Popup>
-                <div className="p-1">
-                  <strong>Municipal {boundary.name}</strong>
-                </div>
-              </Popup>
-            </Polyline>
-          ))}
-        </LayerGroup>
-      )}
-
-      {activeLayers.includes('water-bodies') && (
-        <LayerGroup>
-          {waterBodies.map((water, index) => (
-            <Polyline
-              key={`water-${index}`}
-              positions={water.coordinates}
-              color="#06b6d4"
-              weight={3}
-              opacity={0.7}
-              className="leaflet-interactive"
-            >
-              <Popup>
-                <div className="p-1">
-                  <strong>{water.name}</strong>
                 </div>
               </Popup>
             </Polyline>
@@ -471,45 +318,6 @@ function MapMarkers({
           </Popup>
         </Marker>
       ))}
-
-      {/* RoadWatch Incidents */}
-      {(roadwatchIncidents || []).map(rw => (
-        <Marker
-          key={rw.id}
-          position={[rw.coordinates.lat, rw.coordinates.lng]}
-          icon={L.divIcon({
-            className: 'roadwatch-marker',
-            html: `<div class="w-10 h-10 rounded-full border-3 border-white flex items-center justify-center animate-pulse" style="background: ${getSeverityColor(rw.severity as any)}">
-              <span className="text-white text-xs font-bold">📷</span>
-            </div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-          })}
-          eventHandlers={{
-            click: () => {
-              console.log('RoadWatch incident clicked:', rw.id);
-            }
-          }}
-        >
-          <Popup>
-            <div className="p-2 min-w-[240px]">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-medium text-flood-primary bg-flood-primary/10 px-2 py-1 rounded">RoadWatch</span>
-                <span className={clsx('text-xs font-medium px-2 py-1 rounded', getSeverityColor(rw.severity as any).includes('flood-critical') && 'bg-flood-critical text-white', getSeverityColor(rw.severity as any).includes('flood-danger') && 'bg-flood-danger text-white', getSeverityColor(rw.severity as any).includes('flood-warning') && 'bg-flood-warning text-white', getSeverityColor(rw.severity as any).includes('flood-success') && 'bg-flood-success text-white')}>
-                  {rw.severity.toUpperCase()}
-                </span>
-              </div>
-              <div className="text-xs space-y-1">
-                <div><strong>ID:</strong> {rw.id}</div>
-                <div><strong>Confidence:</strong> {rw.confidence}%</div>
-                <div><strong>Status:</strong> {rw.status}</div>
-                {rw.location?.address && <div><strong>Location:</strong> {rw.location.address}</div>}
-                <div><strong>GPS:</strong> {rw.coordinates.lat.toFixed(6)}, {rw.coordinates.lng.toFixed(6)}</div>
-              </div>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
     </>
   );
 }
@@ -531,15 +339,6 @@ interface FloodMapProps {
   onMapClick: (center: Coordinates, zoom: number) => void;
   selectedRoad?: Road;
   selectedIncident?: FloodIncident;
-  roadwatchIncidents?: Array<{
-    id: string;
-    coordinates: Coordinates;
-    severity: string;
-    status: string;
-    confidence: number;
-    imageUrl: string;
-    location?: { address?: string };
-  }>;
   className?: string;
   height?: string;
 }
@@ -547,7 +346,7 @@ interface FloodMapProps {
 export function FloodMap({ 
   roads, drains, incidents, teams, cameras, activeLayers, 
   center, zoom, onRoadClick, onDrainClick, onIncidentClick, onTeamClick, onCameraClick, onMapClick,
-  selectedRoad, selectedIncident, roadwatchIncidents, className, height = '400px' 
+  selectedRoad, selectedIncident, className, height = '400px' 
 }: FloodMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const [mapReady, setMapReady] = useState(false);
@@ -562,14 +361,20 @@ export function FloodMap({
     });
   };
 
-  // Fly to new center/zoom
+  // Handle center/zoom changes
   useEffect(() => {
-    if (mapRef.current && mapReady) {
-      mapRef.current.flyTo([center.lat, center.lng], zoom, { animate: true, duration: 1.2 });
+    if (mapRef.current) {
+      mapRef.current.flyTo([center.lat, center.lng], zoom, { animate: true, duration: 1 });
     }
-  }, [center, zoom, mapReady]);
+  }, [center, zoom]);
 
-  return (
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.flyTo([center.lat, center.lng], zoom, { animate: true, duration: 1 });
+    }
+  }, [center, zoom]);
+
+return (
     <div className={clsx('rounded-xl overflow-hidden border border-flood-border', className)} style={{ height }}>
       <MapContainer
         center={[center.lat, center.lng]}
@@ -577,7 +382,6 @@ export function FloodMap({
         scrollWheelZoom={true}
         className="h-full w-full"
         attributionControl={false}
-        whenReady={handleMapReady as any}
       >
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
@@ -585,15 +389,12 @@ export function FloodMap({
           subdomains="abcd"
           maxZoom={19}
         />
-        <FlyToHandler center={center} zoom={zoom} />
-        <MapReadyHandler onReady={handleMapReady} />
         <MapMarkers
           roads={roads}
           drains={drains}
           incidents={incidents}
           teams={teams}
           cameras={cameras}
-          roadwatchIncidents={roadwatchIncidents}
           activeLayers={activeLayers}
           onRoadClick={onRoadClick}
           onDrainClick={onDrainClick}
