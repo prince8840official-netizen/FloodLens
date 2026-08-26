@@ -3,19 +3,24 @@ import { useState } from 'react';
 import type { MapLayer } from '../../types';
 import { 
   Route, GitBranch, AlertCircle, Wifi, 
-  Database, Truck, Building2, Eye, EyeOff
+  Database, Truck, Building2, Eye, EyeOff,
+  Flame, Droplets
 } from 'lucide-react';
 import { Tooltip } from '../../components/ui/Tooltip';
 
 const layerIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   'flooded-roads': Route,
   'flood-predictions': AlertCircle,
+  'road-flood-segments': Route,
+  'flood-hotspots': Flame,
   'drainage-network': GitBranch,
   'blocked-drains': AlertCircle,
   'cctv-cameras': Wifi,
   'water-sensors': Database,
   'response-teams': Truck,
   'critical-infra': Building2,
+  'municipal-boundaries': Building2,
+  'water-bodies': Droplets,
 };
 
 interface LayerControlProps {

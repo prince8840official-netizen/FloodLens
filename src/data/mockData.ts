@@ -1453,12 +1453,16 @@ export const mockKPI: KPIData = {
 export const mockMapLayers: MapLayer[] = [
   { id: 'flooded-roads', name: 'Flooded Roads', icon: '🔴', color: '#ef4444', visible: true, type: 'polyline' },
   { id: 'flood-predictions', name: 'Flood Predictions', icon: '🟠', color: '#f97316', visible: true, type: 'polygon' },
+  { id: 'road-flood-segments', name: 'Road Flood Segments', icon: '🛣️', color: '#f97316', visible: false, type: 'polyline' },
+  { id: 'flood-hotspots', name: 'Flood Hotspots', icon: '🔥', color: '#ef4444', visible: false, type: 'heatmap' },
   { id: 'drainage-network', name: 'Drainage Network', icon: '🔵', color: '#06b6d4', visible: false, type: 'polyline' },
   { id: 'blocked-drains', name: 'Blocked Drains', icon: '🟣', color: '#a855f7', visible: true, type: 'marker' },
   { id: 'cctv-cameras', name: 'CCTV Cameras', icon: '📷', color: '#8b5cf6', visible: false, type: 'marker' },
   { id: 'water-sensors', name: 'Water Sensors', icon: '📊', color: '#22c55e', visible: false, type: 'marker' },
   { id: 'response-teams', name: 'Response Teams', icon: '🚑', color: '#fbbf24', visible: true, type: 'marker' },
   { id: 'critical-infra', name: 'Critical Infrastructure', icon: '🏥', color: '#ec4899', visible: false, type: 'marker' },
+  { id: 'municipal-boundaries', name: 'Municipal Boundaries', icon: '🏛️', color: '#64748b', visible: false, type: 'polygon' },
+  { id: 'water-bodies', name: 'Water Bodies', icon: '💧', color: '#06b6d4', visible: false, type: 'polygon' },
 ];
 
 export const mockCameraFeeds = createCameraFeeds();
