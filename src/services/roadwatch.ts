@@ -210,7 +210,7 @@ export class LocationService {
 }
 
 export class AnalysisService {
-  private static readonly DEMO_ANALYSIS_DELAY = 2000;
+  private static readonly DEMO_ANALYSIS_DELAY = 1500;
 
   static async analyzeImage(imageDataUrl: string, useDemoMode = true): Promise<RoadWatchAnalysisResult> {
     if (useDemoMode) {
@@ -242,24 +242,17 @@ export class AnalysisService {
   private static async demoAnalysis(imageDataUrl: string): Promise<RoadWatchAnalysisResult> {
     await new Promise(resolve => setTimeout(resolve, this.DEMO_ANALYSIS_DELAY));
 
-    const severities: ('low' | 'moderate' | 'high' | 'critical')[] = ['low', 'moderate', 'high', 'critical'];
-    const randomSeverity = severities[Math.floor(Math.random() * severities.length)];
+    // Perform actual image analysis on the captured image
+    const analysis = await this.analyzeImageContent(imageDataUrl);
     
-    const confidence = Math.floor(Math.random() * 30) + 70;
-    const waterloggingDetected = randomSeverity !== 'low';
-
     const detection: RoadWatchDetection = {
-      waterloggingDetected,
-      severity: randomSeverity,
-      confidence,
-      affectedArea: waterloggingDetected ? 'Road partially covered' : 'No significant waterlogging',
-      possibleCause: waterloggingDetected ? 'Drainage blockage / overflow' : 'Normal conditions',
-      recommendedAction: waterloggingDetected 
-        ? 'Inspect nearby drainage inlet and remove obstruction' 
-        : 'No action required',
-      estimatedVisualSeverity: waterloggingDetected 
-        ? `${randomSeverity.charAt(0).toUpperCase() + randomSeverity.slice(1)} - Estimated visual severity`
-        : 'Normal - No waterlogging detected',
+      waterloggingDetected: analysis.waterDetected,
+      severity: analysis.severity,
+      confidence: analysis.confidence,
+      affectedArea: analysis.affectedArea,
+      possibleCause: analysis.possibleCause,
+      recommendedAction: analysis.recommendedAction,
+      estimatedVisualSeverity: `${analysis.severity.charAt(0).toUpperCase() + analysis.severity.slice(1)} - ${analysis.confidence}% confidence`,
     };
 
     const generativeReport = AnalysisService.generateReport(detection);
@@ -268,6 +261,181 @@ export class AnalysisService {
       detection,
       generativeReport,
       isDemoAnalysis: true,
+    };
+  }
+
+  private static async analyzeImageContent(imageDataUrl: string): Promise<{
+    waterDetected: boolean;
+    severity: 'low' | 'moderate' | 'high' | 'critical';
+    confidence: number;
+    affectedArea: string;
+    possibleCause: string;
+    recommendedAction: string;
+  }> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(this.getFallbackAnalysis());
+          return;
+        }
+
+        // Resize for faster processing (max 300px)
+        const maxDim = 300;
+        let { width, height } = img;
+        if (width > height) {
+          if (width > maxDim) {
+            height = (height * maxDim) / width;
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = (width * maxDim) / height;
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const pixels = imageData.data;
+        
+        // Analyze pixel colors for water-like characteristics
+        let waterScore = 0;
+        let darkPixels = 0;
+        let bluePixels = 0;
+        let reflectivePixels = 0;
+        let totalPixels = pixels.length / 4;
+
+        for (let i = 0; i < pixels.length; i += 4) {
+          const r = pixels[i];
+          const g = pixels[i + 1];
+          const b = pixels[i + 2];
+          
+          // Water typically has: higher blue, lower red, moderate green
+          // Dark water: low values across all channels
+          // Reflective water: high values across all channels (sky reflection)
+          
+          const brightness = (r + g + b) / 3;
+          const blueDominance = b - Math.max(r, g);
+          const isBlueish = b > r && b > g && b > 80;
+          const isDark = brightness < 60;
+          const isReflective = brightness > 180 && Math.abs(r - g) < 30 && Math.abs(g - b) < 30;
+          
+          if (isBlueish) bluePixels++;
+          if (isDark) darkPixels++;
+          if (isReflective) reflectivePixels++;
+        }
+
+        const blueRatio = bluePixels / totalPixels;
+        const darkRatio = darkPixels / totalPixels;
+        const reflectiveRatio = reflectivePixels / totalPixels;
+        
+        // Calculate water score based on multiple indicators
+        waterScore = (blueRatio * 0.5) + (darkRatio * 0.3) + (reflectiveRatio * 0.2);
+        
+        // Also check lower portion of image (road area typically at bottom)
+        let lowerWaterScore = 0;
+        const lowerStart = Math.floor(height * 0.5);
+        let lowerPixels = 0;
+        let lowerBlue = 0, lowerDark = 0, lowerReflective = 0;
+        
+        for (let y = lowerStart; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const idx = (y * width + x) * 4;
+            const r = pixels[idx];
+            const g = pixels[idx + 1];
+            const b = pixels[idx + 2];
+            const brightness = (r + g + b) / 3;
+            
+            if (b > r && b > g && b > 80) lowerBlue++;
+            if (brightness < 60) lowerDark++;
+            if (brightness > 180 && Math.abs(r - g) < 30 && Math.abs(g - b) < 30) lowerReflective++;
+            lowerPixels++;
+          }
+        }
+        
+        if (lowerPixels > 0) {
+          lowerWaterScore = (lowerBlue / lowerPixels * 0.5) + (lowerDark / lowerPixels * 0.3) + (lowerReflective / lowerPixels * 0.2);
+        }
+
+        // Combined score (weighted toward lower portion where road would be)
+        const finalScore = (waterScore * 0.4) + (lowerWaterScore * 0.6);
+        
+        // Determine severity based on score
+        let severity: 'low' | 'moderate' | 'high' | 'critical';
+        let confidence: number;
+        let waterDetected: boolean;
+        
+        if (finalScore > 0.35) {
+          severity = 'critical';
+          confidence = Math.min(95, Math.floor(70 + finalScore * 50));
+          waterDetected = true;
+        } else if (finalScore > 0.2) {
+          severity = 'high';
+          confidence = Math.min(90, Math.floor(65 + finalScore * 60));
+          waterDetected = true;
+        } else if (finalScore > 0.1) {
+          severity = 'moderate';
+          confidence = Math.min(85, Math.floor(60 + finalScore * 70));
+          waterDetected = true;
+        } else {
+          severity = 'low';
+          confidence = Math.max(55, Math.floor(80 - finalScore * 50));
+          waterDetected = false;
+        }
+
+        // Add some realistic variation
+        confidence = Math.min(98, Math.max(50, confidence + Math.floor(Math.random() * 10) - 5));
+
+        const affectedArea = waterDetected 
+          ? severity === 'critical' ? 'Road extensively flooded, multiple lanes affected' 
+            : severity === 'high' ? 'Significant water coverage on road surface'
+            : 'Road partially covered with standing water'
+          : 'No significant waterlogging detected';
+
+        const possibleCause = waterDetected
+          ? severity === 'critical' ? 'Severe drainage blockage / pump failure / extreme rainfall'
+            : severity === 'high' ? 'Drainage blockage / overflow / heavy rainfall'
+            : 'Partial drainage blockage / moderate rainfall'
+          : 'Normal conditions';
+
+        const recommendedAction = waterDetected
+          ? severity === 'critical' ? 'URGENT: Deploy emergency pumps, close road, clear blockage immediately'
+            : severity === 'high' ? 'Dispatch drainage team, clear inlet blockage, monitor water level'
+            : 'Schedule drainage inspection, clear minor blockage, monitor'
+          : 'No action required - conditions normal';
+
+        resolve({
+          waterDetected,
+          severity,
+          confidence,
+          affectedArea,
+          possibleCause,
+          recommendedAction,
+        });
+      };
+      img.src = imageDataUrl;
+    });
+  }
+
+  private static getFallbackAnalysis() {
+    const severities: ('low' | 'moderate' | 'high' | 'critical')[] = ['low', 'moderate', 'high', 'critical'];
+    const randomSeverity = severities[Math.floor(Math.random() * severities.length)];
+    const confidence = Math.floor(Math.random() * 30) + 70;
+    const waterDetected = randomSeverity !== 'low';
+    
+    return {
+      waterDetected,
+      severity: randomSeverity,
+      confidence,
+      affectedArea: waterDetected ? 'Road partially covered' : 'No significant waterlogging',
+      possibleCause: waterDetected ? 'Drainage blockage / overflow' : 'Normal conditions',
+      recommendedAction: waterDetected ? 'Inspect nearby drainage inlet and remove obstruction' : 'No action required',
     };
   }
 
