@@ -150,6 +150,44 @@ function MapMarkers({
   const predictedRoads = roads.filter(r => r.severity === 'moderate' && r.probability > 50);
   const blockedDrains = drains.filter(d => d.status === 'blocked' || d.blockageProbability > 70);
 
+  // Generate road flood segments from high-risk roads
+  const roadFloodSegments = roads
+    .filter(r => r.severity === 'critical' || r.severity === 'high' || (r.severity === 'moderate' && r.probability > 60))
+    .map(road => ({
+      id: `seg-${road.id}`,
+      coordinates: road.coordinates,
+      severity: road.severity,
+      probability: road.probability,
+      name: road.name,
+    }));
+
+  // Generate flood hotspots from incident clusters
+  const floodHotspots = incidents
+    .filter(i => i.severity === 'critical' || i.severity === 'high')
+    .reduce((acc: Array<{lat: number; lng: number; intensity: number}>, inc) => {
+      const existing = acc.find(h => 
+        Math.abs(h.lat - inc.coordinates.lat) < 0.01 && Math.abs(h.lng - inc.coordinates.lng) < 0.01
+      );
+      if (existing) {
+        existing.intensity += 1;
+      } else {
+        acc.push({ lat: inc.coordinates.lat, lng: inc.coordinates.lng, intensity: 1 });
+      }
+      return acc;
+    }, []);
+
+  // Municipal boundaries (Kanpur zones)
+  const municipalBoundaries = [
+    { name: 'Zone 1', coordinates: [[26.48, 80.30], [26.48, 80.35], [26.44, 80.35], [26.44, 80.30], [26.48, 80.30]] as [number, number][] },
+    { name: 'Zone 2', coordinates: [[26.44, 80.30], [26.44, 80.35], [26.40, 80.35], [26.40, 80.30], [26.44, 80.30]] as [number, number][] },
+    { name: 'Zone 3', coordinates: [[26.40, 80.30], [26.40, 80.35], [26.36, 80.35], [26.36, 80.30], [26.40, 80.30]] as [number, number][] },
+  ];
+
+  // Water bodies (major water bodies in Kanpur area)
+  const waterBodies = [
+    { name: 'Ganga River', coordinates: [[26.50, 80.35], [26.48, 80.36], [26.40, 80.38], [26.38, 80.39], [26.35, 80.40]] as [number, number][] },
+  ];
+
   const handlePolylineClick = (callback: () => void) => ({
     onClick: callback
   });
@@ -208,6 +246,103 @@ function MapMarkers({
                 <div className="p-1">
                   <strong>{road.name}</strong> ({road.id})<br />
                   <span className="text-flood-warning">PREDICTED</span> - {road.probability}% in {road.expectedOnset}min
+                </div>
+              </Popup>
+            </Polyline>
+          ))}
+        </LayerGroup>
+      )}
+
+      {activeLayers.includes('road-flood-segments') && (
+        <LayerGroup>
+          {roadFloodSegments.map(segment => (
+            <Polyline
+              key={segment.id}
+              positions={segment.coordinates.map(c => [c.lat, c.lng])}
+              color={getSeverityColor(segment.severity)}
+              weight={5}
+              opacity={0.7}
+              dashArray="10, 5"
+              className="leaflet-interactive"
+              eventHandlers={{
+                click: () => onRoadClick({ id: segment.id, name: segment.name, coordinates: segment.coordinates } as any)
+              }}
+            >
+              <Popup>
+                <div className="p-1 min-w-[180px]">
+                  <strong>{segment.name}</strong> ({segment.id})<br />
+                  <span className={clsx('badge', getSeverityColor(segment.severity).includes('flood-critical') && 'badge-critical', getSeverityColor(segment.severity).includes('flood-danger') && 'badge-high', getSeverityColor(segment.severity).includes('flood-warning') && 'badge-moderate')}>
+                    {segment.severity.toUpperCase()}
+                  </span><br />
+                  Flood Risk: {segment.probability}%
+                </div>
+              </Popup>
+            </Polyline>
+          ))}
+        </LayerGroup>
+      )}
+
+      {activeLayers.includes('flood-hotspots') && (
+        <LayerGroup>
+          {floodHotspots.map((hotspot, index) => (
+            <CircleMarker
+              key={`hotspot-${index}`}
+              center={[hotspot.lat, hotspot.lng]}
+              radius={Math.min(20 + hotspot.intensity * 5, 50)}
+              color="#ef4444"
+              fillColor="#ef4444"
+              fillOpacity={0.3}
+              weight={0}
+              className="leaflet-interactive"
+            >
+              <Popup>
+                <div className="p-1">
+                  <strong>Flood Hotspot #{index + 1}</strong><br />
+                  Incident Count: {hotspot.intensity}<br />
+                  Intensity: {hotspot.intensity > 3 ? 'High' : hotspot.intensity > 1 ? 'Medium' : 'Low'}
+                </div>
+              </Popup>
+            </CircleMarker>
+          ))}
+        </LayerGroup>
+      )}
+
+      {activeLayers.includes('municipal-boundaries') && (
+        <LayerGroup>
+          {municipalBoundaries.map((boundary, index) => (
+            <Polyline
+              key={`boundary-${index}`}
+              positions={boundary.coordinates}
+              color="#64748b"
+              weight={2}
+              opacity={0.6}
+              dashArray="5, 5"
+              className="leaflet-interactive"
+            >
+              <Popup>
+                <div className="p-1">
+                  <strong>Municipal {boundary.name}</strong>
+                </div>
+              </Popup>
+            </Polyline>
+          ))}
+        </LayerGroup>
+      )}
+
+      {activeLayers.includes('water-bodies') && (
+        <LayerGroup>
+          {waterBodies.map((water, index) => (
+            <Polyline
+              key={`water-${index}`}
+              positions={water.coordinates}
+              color="#06b6d4"
+              weight={3}
+              opacity={0.7}
+              className="leaflet-interactive"
+            >
+              <Popup>
+                <div className="p-1">
+                  <strong>{water.name}</strong>
                 </div>
               </Popup>
             </Polyline>
