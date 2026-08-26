@@ -11,3 +11,4 @@ export { ToastProvider, useToast, showSuccess, showError, showWarning, showInfo 
 export { Spinner, Skeleton, CardSkeleton, TableSkeleton, MapSkeleton, PageSkeleton } from './Loading';
 export { KPICard, KPIGrid, MetricCard } from './KPICard';
 export { Tooltip } from './Tooltip';
+export { ErrorBoundary } from './ErrorBoundary';
