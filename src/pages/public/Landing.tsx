@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { 
   Zap, MapPin, Cpu, Shield, Eye, Brain, 
@@ -55,6 +55,12 @@ const floodlens = [
 ];
 
 export function Landing() {
+  const navigate = useNavigate();
+
+  const handleLaunchCommandCenter = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-flood-bg">
       <header className="fixed top-0 left-0 right-0 z-50 bg-flood-card/80 backdrop-blur-md border-b border-flood-border">
@@ -70,9 +76,7 @@ export function Landing() {
             <Link to="/technology" className="text-sm text-flood-muted hover:text-flood-text transition-colors">Technology</Link>
             <Link to="/about" className="text-sm text-flood-muted hover:text-flood-text transition-colors">About</Link>
             <Link to="/login" className="text-sm text-flood-muted hover:text-flood-text transition-colors">Sign In</Link>
-            <Link to="/dashboard">
-              <Button size="sm">Launch Command Center</Button>
-            </Link>
+            <Button size="sm" onClick={handleLaunchCommandCenter}>Launch Command Center</Button>
           </div>
         </nav>
       </header>
@@ -101,11 +105,9 @@ export function Landing() {
                   Automatically coordinate the response. Verify the resolution.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                  <Link to="/dashboard">
-                    <Button size="lg" icon={<ArrowRight className="w-5 h-5" />} iconPosition="right" className="w-full sm:w-auto">
-                      Launch Command Center
-                    </Button>
-                  </Link>
+                  <Button size="lg" icon={<ArrowRight className="w-5 h-5" />} iconPosition="right" className="w-full sm:w-auto" onClick={handleLaunchCommandCenter}>
+                    Launch Command Center
+                  </Button>
                   <Button variant="secondary" size="lg" onClick={() => document.getElementById('solution')?.scrollIntoView({ behavior: 'smooth' })} className="w-full sm:w-auto py-4 px-6 text-base sm:text-lg min-h-[48px]">
                     Explore FloodLens →
                   </Button>
