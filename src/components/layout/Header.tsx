@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { clsx } from 'clsx';
-import { Search, Bell, HelpCircle, User, LogOut, ChevronDown, Menu, X } from 'lucide-react';
+import { Search, Bell, HelpCircle, User, LogOut, ChevronDown, Menu, X, Settings } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../ui/Button';

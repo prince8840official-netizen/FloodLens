@@ -157,7 +157,7 @@ export function RoadDetails() {
           <Card variant="hover"><CardContent className="p-4 text-center"><p className="text-sm text-flood-muted">Priority</p><Badge variant={drain.priority === 'P1' ? 'critical' : drain.priority === 'P2' ? 'high' : 'moderate'} size="md">{drain.priority}</Badge></CardContent></Card>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Card variant="hover"><CardContent className="p-4"><h4 className="font-medium text-flood-text mb-2">Status Details</h4><div className="space-y-2 text-sm"><div className="flex justify-between"><span className="text-flood-muted">Status</span><StatusBadge status={drain.status} /></div><div className="flex justify-between"><span className="text-flood-muted">Depth</span><span className="font-medium">{drain.depth}m</span></div><div className="flex justify-between"><span className="text-flood-muted">Last Maintenance</span><span className="font-medium">{drain.lastMaintenance} days ago</span></div><div className="flex justify-between"><span className="text-flood-muted">Historical Incidents</span><span className="font-medium">{drain.historicalIncidents}</span></div><div className="flex justify-between"><span className="text-flood-muted">Type</span><span className="font-medium capitalize">{drain.type.replace('-', ' ')}</span></div></div></CardContent></Card>
+          <Card variant="hover"><CardContent className="p-4"><h4 className="font-medium text-flood-text mb-2">Status Details</h4><div className="space-y-2 text-sm"><div className="flex justify-between"><span className="text-flood-muted">Status</span><StatusBadge status={drain.status as any} /></div><div className="flex justify-between"><span className="text-flood-muted">Depth</span><span className="font-medium">{drain.depth}m</span></div><div className="flex justify-between"><span className="text-flood-muted">Last Maintenance</span><span className="font-medium">{drain.lastMaintenance} days ago</span></div><div className="flex justify-between"><span className="text-flood-muted">Historical Incidents</span><span className="font-medium">{drain.historicalIncidents}</span></div><div className="flex justify-between"><span className="text-flood-muted">Type</span><span className="font-medium capitalize">{drain.type.replace('-', ' ')}</span></div></div></CardContent></Card>
           <Card variant="hover"><CardContent className="p-4"><h4 className="font-medium text-flood-text mb-2">Connected Roads</h4><div className="space-y-1">{drain.connectedRoads.map(rid => {const r = mockRoads.find(ro => ro.id === rid); return r ? <Link key={rid} to={`/roads/${rid}`} className="flex items-center justify-between text-sm p-2 hover:bg-flood-bg rounded-lg"><span>{r.name} ({rid})</span><StatusBadge status={r.severity} size="sm" /></Link> : null; })}</div></CardContent></Card>
         </div>
         <Button className="w-full" icon={<Wrench className="w-4 h-4" />}>Create Inspection Task</Button>
@@ -244,7 +244,7 @@ export function RoadDetails() {
                 </div>
                 <div className="text-right">
                   <p className="font-mono text-flood-text">{sensor.value} {sensor.unit}</p>
-                  <StatusBadge status={sensor.status} size="sm" />
+                  <StatusBadge status={sensor.status as any} size="sm" />
                 </div>
               </div>
             ))}
@@ -297,6 +297,3 @@ export function RoadDetails() {
     </div>
   );
 }
-
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, XCircle, Wrench } from 'lucide-react';

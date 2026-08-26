@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { useState } from 'react';
 import { clsx } from 'clsx';
 import { 
   AlertTriangle, MapPin, Clock, Droplets, Database, 
@@ -105,18 +106,18 @@ export function IncidentDetails() {
               {timelineStages.map((stage, i) => (
                 <div key={stage.id} className="flex items-center gap-2">
                   <div className={clsx('flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all',
-                    completedStages.includes(stage.id) ? 'bg-flood-success text-white' : 
-                    stage.id === incident.status ? 'bg-flood-primary/20 text-flood-primary ring-2 ring-flood-primary' :
+                    completedStages.includes(stage.id as any) ? 'bg-flood-success text-white' : 
+                    stage.id === (incident.status as string) ? 'bg-flood-primary/20 text-flood-primary ring-2 ring-flood-primary' :
                     'bg-flood-border text-flood-muted'
                   )}>
-                    {completedStages.includes(stage.id) ? <Check className="w-4 h-4" /> : <stage.icon className="w-4 h-4" />}
+                    {completedStages.includes(stage.id as any) ? <Check className="w-4 h-4" /> : <stage.icon className="w-4 h-4" />}
                   </div>
                   <span className={clsx('text-sm font-medium hidden sm:block', 
-                    completedStages.includes(stage.id) ? 'text-flood-success' : 
-                    stage.id === incident.status ? 'text-flood-primary' : 'text-flood-muted'
+                    completedStages.includes(stage.id as any) ? 'text-flood-success' : 
+                    stage.id === (incident.status as string) ? 'text-flood-primary' : 'text-flood-muted'
                   )}>{stage.label}</span>
                   {i < timelineStages.length - 1 && (
-                    <div className={clsx('w-16 h-0.5 hidden sm:block', completedStages.includes(stage.id) ? 'bg-flood-success' : 'bg-flood-border')} />
+                    <div className={clsx('w-16 h-0.5 hidden sm:block', completedStages.includes(stage.id as any) ? 'bg-flood-success' : 'bg-flood-border')} />
                   )}
                 </div>
               ))}
@@ -155,7 +156,7 @@ export function IncidentDetails() {
                           {event.automated ? <Brain className="w-5 h-5" /> : <MapPin className="w-5 h-5" />}
                         </div>
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1"><span className="font-medium text-flood-text">{event.description}</span><Badge variant={event.automated ? 'primary' : 'warning'} size="sm">{event.automated ? 'Auto' : 'Manual'}</Badge></div>
+                          <div className="flex items-center gap-2 mb-1"><span className="font-medium text-flood-text">{event.description}</span><Badge variant={event.automated ? 'info' : 'warning'} size="sm">{event.automated ? 'Auto' : 'Manual'}</Badge></div>
                           <p className="text-sm text-flood-muted">{event.actor} · {new Date(event.timestamp).toLocaleString()}</p>
                         </div>
                       </div>
@@ -175,7 +176,7 @@ export function IncidentDetails() {
                     <div key={cam.id} className="group relative rounded-lg overflow-hidden bg-flood-bg">
                       <div className="aspect-video relative"><img src={cam.imageUrl} alt={cam.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" /></div>
                       <div className="p-3">
-                        <div className="flex items-center justify-between mb-2"><h4 className="font-medium text-flood-text">{cam.name}</h4><StatusBadge status={cam.severity} size="sm" /></div>
+                        <div className="flex items-center justify-between mb-2"><h4 className="font-medium text-flood-text">{cam.name}</h4><StatusBadge status={cam.severity as any} size="sm" /></div>
                         <p className="text-xs text-flood-muted">{cam.ward} · {new Date(cam.lastUpdated).toLocaleTimeString()}</p>
                       </div>
                     </div>
@@ -192,7 +193,7 @@ export function IncidentDetails() {
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
                   <table className="w-full"><thead><tr className="border-b border-flood-border"><th className="px-4 py-3 text-left font-medium text-flood-muted">Sensor</th><th className="px-4 py-3 text-left font-medium text-flood-muted">Type</th><th className="px-4 py-3 text-left font-medium text-flood-muted">Value</th><th className="px-4 py-3 text-left font-medium text-flood-muted">Threshold</th><th className="px-4 py-3 text-left font-medium text-flood-muted">Status</th><th className="px-4 py-3 text-left font-medium text-flood-muted">Time</th></tr></thead>
-                  <tbody>{incident.sensorData.map(sensor => (<tr key={sensor.id} className="border-b border-flood-border/50"><td className="px-4 py-3 font-mono text-sm">{sensor.sensorId}</td><td className="px-4 py-3"><Badge variant="info" size="sm">{sensor.type.replace('-', ' ')}</Badge></td><td className="px-4 py-3 font-mono">{sensor.value} {sensor.unit}</td><td className="px-4 py-3 text-flood-muted">{sensor.threshold} {sensor.unit}</td><td className="px-4 py-3"><StatusBadge status={sensor.status} size="sm" /></td><td className="px-4 py-3 text-sm text-flood-muted">{new Date(sensor.timestamp).toLocaleTimeString()}</td></tr>))}</tbody></table>
+                  <tbody>{incident.sensorData.map(sensor => (<tr key={sensor.id} className="border-b border-flood-border/50"><td className="px-4 py-3 font-mono text-sm">{sensor.sensorId}</td><td className="px-4 py-3"><Badge variant="info" size="sm">{sensor.type.replace('-', ' ')}</Badge></td><td className="px-4 py-3 font-mono">{sensor.value} {sensor.unit}</td><td className="px-4 py-3 text-flood-muted">{sensor.threshold} {sensor.unit}</td><td className="px-4 py-3"><StatusBadge status={sensor.status as any} size="sm" /></td><td className="px-4 py-3 text-sm text-flood-muted">{new Date(sensor.timestamp).toLocaleTimeString()}</td></tr>))}</tbody></table>
                 </div>
               </CardContent>
             </Card>
@@ -308,9 +309,3 @@ export function IncidentDetails() {
     </div>
   );
 }
-
-import { useState } from 'react';
-import { 
-  ArrowLeft, CheckCircle, XCircle, ChevronRight, ArrowRight, 
-  Share2, Download, Brain, Zap, AlertTriangle, Check, X, Loader2, MessageSquare
-} from 'lucide-react';

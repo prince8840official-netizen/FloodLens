@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useReducer, useMemo, type ReactNode } from 'react';
 import type {
   FloodIncident,
   Road,
@@ -314,6 +314,9 @@ interface AppContextType {
   onCameraClick: (camera: CameraFeed) => void;
   onMapClick: (center: Coordinates, zoom: number) => void;
   setActiveMapLayers: (layers: string[]) => void;
+  logout: () => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  navigate: (path: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -691,6 +694,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     onCameraClick,
     onMapClick,
     setActiveMapLayers,
+    logout: () => {
+      dispatch({ type: 'LOGOUT' });
+    },
+    setSidebarCollapsed: (collapsed: boolean) => {
+      dispatch({ type: 'SET_SIDEBAR_COLLAPSED', payload: collapsed });
+    },
+    navigate: (path: string) => {
+      // Navigation handled by react-router, this is a placeholder
+    },
   }), [state]);
 
   return (
@@ -707,5 +719,3 @@ export function useApp() {
   }
   return context;
 }
-
-const AppContext = createContext<AppContextType | undefined>(undefined);

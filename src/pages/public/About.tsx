@@ -2,10 +2,11 @@ import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { 
   Zap, Target, Users, Award, Globe, Shield, 
-  Lightbulb, Heart, Code, BookOpen, ArrowRight
+  Lightbulb, Heart, Code, BookOpen, ArrowRight, CheckCircle
 } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 
 const values = [
   { icon: Target, title: 'Evidence First', desc: 'Every decision backed by multi-source evidence. No action without verification.' },

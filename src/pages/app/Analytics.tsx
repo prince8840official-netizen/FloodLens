@@ -8,12 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Ca
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Select } from '../../components/ui/Select';
+import { StatusBadge } from '../../components/ui';
 import { 
   ChartContainer, MultiLineChart, HorizontalBarChart, 
   VerticalBarChart, DonutChart, ComposedBarLineChart, MetricCard
 } from '../../components/charts/Charts';
 import { useApp } from '../../context/AppContext';
-import { mockIncidents, mockHistory, mockRoads, mockTeams, formatTime } from '../../data/mockData';
+import { mockIncidents, mockHistory, mockRoads, mockTeams, formatTime, getSeverityColor } from '../../data/mockData';
 
 const timeRangeOptions = [
   { value: '24h', label: 'Last 24 Hours' },
@@ -198,6 +199,3 @@ export function Analytics() {
     </div>
   );
 }
-
-import { getSeverityColor } from '../../data/mockData';
-import { AlertTriangle, Users } from 'lucide-react';

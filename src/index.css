@@ -1,145 +1,276 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+@theme {
+  --color-flood-bg: #0a0f1a;
+  --color-flood-card: #111827;
+  --color-flood-border: #1e293b;
+  --color-flood-text: #f1f5f9;
+  --color-flood-muted: #64748b;
+  --color-flood-primary: #06b6d4;
+  --color-flood-critical: #f97316;
+  --color-flood-danger: #ef4444;
+  --color-flood-warning: #fbbf24;
+  --color-flood-success: #22c55e;
+  
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
 @layer base {
   * {
-    @apply border-flood-border;
+    border-color: var(--color-flood-border);
   }
   
   html {
-    @apply scroll-smooth;
+    scroll-behavior: smooth;
   }
   
   body {
-    @apply bg-flood-bg text-flood-text font-sans antialiased;
+    background-color: var(--color-flood-bg);
+    color: var(--color-flood-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
-@layer components {
-  .glass {
-    @apply bg-flood-card/80 backdrop-blur-sm border border-flood-border;
-  }
-  
-  .glass-strong {
-    @apply bg-flood-card/95 backdrop-blur-md border border-flood-border;
-  }
-  
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-flood-bg disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-  
-  .btn-primary {
-    @apply btn bg-flood-primary text-flood-bg hover:bg-cyan-400 active:bg-cyan-600 focus-visible:ring-flood-primary;
-  }
-  
-  .btn-secondary {
-    @apply btn bg-flood-card text-flood-text hover:bg-flood-border active:bg-flood-border/80 focus-visible:ring-flood-muted;
-  }
-  
-  .btn-danger {
-    @apply btn bg-flood-danger text-white hover:bg-red-500 active:bg-red-600 focus-visible:ring-flood-danger;
-  }
-  
-  .btn-success {
-    @apply btn bg-flood-success text-white hover:bg-green-500 active:bg-green-600 focus-visible:ring-flood-success;
-  }
-  
-  .btn-warning {
-    @apply btn bg-flood-warning text-flood-bg hover:bg-yellow-400 active:bg-yellow-500 focus-visible:ring-flood-warning;
-  }
-  
-  .btn-ghost {
-    @apply btn bg-transparent text-flood-text hover:bg-flood-border active:bg-flood-border/80 focus-visible:ring-flood-muted;
-  }
-  
-  .card {
-    @apply glass rounded-xl p-4 transition-all duration-200;
-  }
-  
-  .card-hover {
-    @apply card hover:bg-flood-card hover:border-flood-primary/30 hover:shadow-lg hover:shadow-flood-primary/5;
-  }
-  
-  .input {
-    @apply w-full px-3 py-2 bg-flood-bg border border-flood-border rounded-lg text-flood-text placeholder-flood-muted focus:outline-none focus:ring-2 focus:ring-flood-primary focus:border-transparent transition-all duration-200;
-  }
-  
-  .badge {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
-  }
-  
-  .badge-critical {
-    @apply badge bg-flood-critical/20 text-flood-critical border border-flood-critical/30;
-  }
-  
-  .badge-high {
-    @apply badge bg-flood-danger/20 text-flood-danger border border-flood-danger/30;
-  }
-  
-  .badge-moderate {
-    @apply badge bg-flood-warning/20 text-flood-warning border border-flood-warning/30;
-  }
-  
-  .badge-normal {
-    @apply badge bg-flood-primary/20 text-flood-primary border border-flood-primary/30;
-  }
-  
-  .badge-success {
-    @apply badge bg-flood-success/20 text-flood-success border border-flood-success/30;
-  }
-  
-  .badge-info {
-    @apply badge bg-flood-primary/20 text-flood-primary border border-flood-primary/30;
-  }
-  
-  .status-dot {
-    @apply w-2 h-2 rounded-full;
-  }
-  
-  .status-critical { @apply status-dot bg-flood-critical animate-pulse; }
-  .status-high { @apply status-dot bg-flood-danger; }
-  .status-moderate { @apply status-dot bg-flood-warning; }
-  .status-normal { @apply status-dot bg-flood-primary; }
-  .status-resolved { @apply status-dot bg-flood-success; }
-  .status-active { @apply status-dot bg-flood-primary animate-pulse; }
-  .status-enroute { @apply status-dot bg-flood-warning animate-pulse; }
-  .status-idle { @apply status-dot bg-flood-success; }
-  
-  .scrollbar-thin {
-    @apply scrollbar-thin scrollbar-track-flood-bg scrollbar-thumb-flood-border hover:scrollbar-thumb-flood-muted;
-  }
-  
-  .kpi-card {
-    @apply glass-strong rounded-xl p-5 hover:border-flood-primary/30 transition-all duration-300;
-  }
-  
-  .table-container {
-    @apply overflow-x-auto rounded-lg border border-flood-border;
-  }
-  
-  .table {
-    @apply w-full text-sm;
-  }
-  
-  .table th {
-    @apply px-4 py-3 text-left font-medium text-flood-muted uppercase tracking-wider bg-flood-card/50 border-b border-flood-border;
-  }
-  
-  .table td {
-    @apply px-4 py-3 border-b border-flood-border/50 transition-colors;
-  }
-  
-  .table tbody tr {
-    @apply hover:bg-flood-card/50 cursor-pointer transition-colors;
-  }
-  
-  .table tbody tr:last-child td {
-    @apply border-b-0;
-  }
+.glass {
+  background-color: color-mix(in srgb, var(--color-flood-card) 80%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-flood-border);
+}
+
+.glass-strong {
+  background-color: color-mix(in srgb, var(--color-flood-card) 95%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-flood-border);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.btn:focus-visible {
+  ring: 2px;
+  ring-offset: 2px;
+  ring-offset-color: var(--color-flood-bg);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--color-flood-primary);
+  color: var(--color-flood-bg);
+}
+
+.btn-primary:hover {
+  background-color: #0891b2;
+}
+
+.btn-primary:active {
+  background-color: #0e7490;
+}
+
+.btn-secondary {
+  background-color: var(--color-flood-card);
+  color: var(--color-flood-text);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-flood-border);
+}
+
+.btn-danger {
+  background-color: var(--color-flood-danger);
+  color: white;
+}
+
+.btn-success {
+  background-color: var(--color-flood-success);
+  color: white;
+}
+
+.btn-warning {
+  background-color: var(--color-flood-warning);
+  color: var(--color-flood-bg);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--color-flood-text);
+}
+
+.btn-ghost:hover {
+  background-color: var(--color-flood-border);
+}
+
+.card {
+  background-color: color-mix(in srgb, var(--color-flood-card) 80%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-flood-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: all 0.2s;
+}
+
+.card-hover:hover {
+  background-color: var(--color-flood-card);
+  border-color: color-mix(in srgb, var(--color-flood-primary) 30%, transparent);
+  box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--color-flood-primary) 5%, transparent), 0 4px 6px -2px color-mix(in srgb, var(--color-flood-primary) 5%, transparent);
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-flood-bg);
+  border: 1px solid var(--color-flood-border);
+  border-radius: 0.5rem;
+  color: var(--color-flood-text);
+  transition: all 0.2s;
+}
+
+.input::placeholder {
+  color: var(--color-flood-muted);
+}
+
+.input:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: var(--color-flood-primary);
+  border-color: transparent;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-critical {
+  background-color: color-mix(in srgb, var(--color-flood-critical) 20%, transparent);
+  color: var(--color-flood-critical);
+  border: 1px solid color-mix(in srgb, var(--color-flood-critical) 30%, transparent);
+}
+
+.badge-high {
+  background-color: color-mix(in srgb, var(--color-flood-danger) 20%, transparent);
+  color: var(--color-flood-danger);
+  border: 1px solid color-mix(in srgb, var(--color-flood-danger) 30%, transparent);
+}
+
+.badge-moderate {
+  background-color: color-mix(in srgb, var(--color-flood-warning) 20%, transparent);
+  color: var(--color-flood-warning);
+  border: 1px solid color-mix(in srgb, var(--color-flood-warning) 30%, transparent);
+}
+
+.badge-normal {
+  background-color: color-mix(in srgb, var(--color-flood-primary) 20%, transparent);
+  color: var(--color-flood-primary);
+  border: 1px solid color-mix(in srgb, var(--color-flood-primary) 30%, transparent);
+}
+
+.badge-success {
+  background-color: color-mix(in srgb, var(--color-flood-success) 20%, transparent);
+  color: var(--color-flood-success);
+  border: 1px solid color-mix(in srgb, var(--color-flood-success) 30%, transparent);
+}
+
+.badge-info {
+  background-color: color-mix(in srgb, var(--color-flood-primary) 20%, transparent);
+  color: var(--color-flood-primary);
+  border: 1px solid color-mix(in srgb, var(--color-flood-primary) 30%, transparent);
+}
+
+.status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+.status-critical { background-color: var(--color-flood-critical); animation: pulse 2s infinite; }
+.status-high { background-color: var(--color-flood-danger); }
+.status-moderate { background-color: var(--color-flood-warning); }
+.status-normal { background-color: var(--color-flood-primary); }
+.status-resolved { background-color: var(--color-flood-success); }
+.status-active { background-color: var(--color-flood-primary); animation: pulse 2s infinite; }
+.status-enroute { background-color: var(--color-flood-warning); animation: pulse 2s infinite; }
+.status-idle { background-color: var(--color-flood-success); }
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-flood-border) var(--color-flood-bg);
+}
+
+.kpi-card {
+  background-color: color-mix(in srgb, var(--color-flood-card) 95%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-flood-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  transition: all 0.3s;
+}
+
+.kpi-card:hover {
+  border-color: color-mix(in srgb, var(--color-flood-primary) 30%, transparent);
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-flood-border);
+}
+
+.table {
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 500;
+  color: var(--color-flood-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: color-mix(in srgb, var(--color-flood-card) 50%, transparent);
+  border-bottom: 1px solid var(--color-flood-border);
+}
+
+.table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-flood-border) 50%, transparent);
+  transition: background-color 0.2s;
+}
+
+.table tbody tr {
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--color-flood-card) 50%, transparent);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 @layer utilities {
@@ -165,42 +296,73 @@
       transform: translateY(0);
     }
   }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 }
 
 /* Leaflet overrides */
 .leaflet-container {
-  @apply bg-flood-bg;
+  background-color: var(--color-flood-bg);
   font-family: inherit !important;
 }
 
 .leaflet-popup-content-wrapper {
-  @apply bg-flood-card border-flood-border rounded-lg shadow-xl;
+  background-color: var(--color-flood-card);
+  border: 1px solid var(--color-flood-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
 .leaflet-popup-content {
-  @apply text-flood-text p-2 m-0;
+  color: var(--color-flood-text);
+  padding: 0.5rem;
+  margin: 0;
 }
 
 .leaflet-popup-tip {
-  @apply bg-flood-card border-flood-border;
+  background-color: var(--color-flood-card);
+  border: 1px solid var(--color-flood-border);
 }
 
 .leaflet-control-container .leaflet-control {
-  @apply bg-flood-card border-flood-border text-flood-text;
+  background-color: var(--color-flood-card);
+  border: 1px solid var(--color-flood-border);
+  color: var(--color-flood-text);
 }
 
 .leaflet-control-layers {
-  @apply bg-flood-card border-flood-border rounded-lg;
+  background-color: var(--color-flood-card);
+  border: 1px solid var(--color-flood-border);
+  border-radius: 0.5rem;
 }
 
 .leaflet-control-layers-expanded {
-  @apply bg-flood-card border-flood-border;
+  background-color: var(--color-flood-card);
+  border: 1px solid var(--color-flood-border);
 }
 
 .leaflet-control-zoom a {
-  @apply bg-flood-card border-flood-border text-flood-text hover:bg-flood-border transition-colors;
+  background-color: var(--color-flood-card);
+  border: 1px solid var(--color-flood-border);
+  color: var(--color-flood-text);
+  transition: background-color 0.2s;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: var(--color-flood-border);
 }
 
 .leaflet-control-attribution {
-  @apply bg-flood-card/80 backdrop-blur-sm text-flood-muted text-xs;
+  background-color: color-mix(in srgb, var(--color-flood-card) 80%, transparent);
+  backdrop-filter: blur(8px);
+  color: var(--color-flood-muted);
+  font-size: 0.75rem;
 }

@@ -105,7 +105,7 @@ export function DataTable<T>({
                 <input
                   type="checkbox"
                   checked={selectedRows.size === data.length && data.length > 0}
-                  indeterminate={selectedRows.size > 0 && selectedRows.size < data.length}
+                  ref={(el) => { if (el) el.indeterminate = selectedRows.size > 0 && selectedRows.size < data.length; }}
                   onChange={handleSelectAll}
                   className="w-4 h-4 rounded border-flood-border text-flood-primary focus:ring-flood-primary"
                   aria-label="Select all rows"

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 
 const architectureLayers = [
   { name: 'Data Ingestion', icon: Database, color: '#06b6d4', components: ['Rainfall APIs (IMD, GPM)', 'IoT Sensors (MQTT)', 'CCTV Streams (RTSP)', 'Citizen Reports (Mobile)', 'Dashcam Uploads', 'Historical Archives'] },

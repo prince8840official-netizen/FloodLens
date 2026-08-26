@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { clsx } from 'clsx';
 import { 
-  Settings, User, Bell, MapPin, Brain, Shield, 
+  Settings, User as UserIcon, Bell, MapPin, Brain, Shield, 
   Database, Globe, Key, Palette, Moon, Sun,
   ChevronRight, Check, X, Eye, EyeOff, Save,
   UserPlus, UserMinus, Trash2, Edit2, Users
@@ -18,12 +18,12 @@ import { mockUsers, defaultSettings } from '../../data/mockData';
 import type { AppSettings, UserRole, User } from '../../types';
 
 const settingsTabs = [
-  { id: 'general', label: 'General', icon: Settings },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'map', label: 'Map', icon: MapPin },
-  { id: 'ai', label: 'AI', icon: Brain },
-  { id: 'privacy', label: 'Privacy', icon: Shield },
-  { id: 'users', label: 'Users & Roles', icon: Users },
+  { id: 'general', label: 'General', icon: <Settings className="w-4 h-4" /> },
+  { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
+  { id: 'map', label: 'Map', icon: <MapPin className="w-4 h-4" /> },
+  { id: 'ai', label: 'AI', icon: <Brain className="w-4 h-4" /> },
+  { id: 'privacy', label: 'Privacy', icon: <Shield className="w-4 h-4" /> },
+  { id: 'users', label: 'Users & Roles', icon: <Users className="w-4 h-4" /> },
 ];
 
 const roleOptions: { value: UserRole; label: string }[] = [
@@ -380,7 +380,7 @@ export function SettingsPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-flood-primary/20 flex items-center justify-center">
-                        <User className="w-4 h-4 text-flood-primary" />
+                        <UserIcon className="w-4 h-4 text-flood-primary" />
                       </div>
                       <div>
                         <p className="font-medium text-flood-text">{user.name}</p>
@@ -461,5 +461,3 @@ export function SettingsPage() {
     </div>
   );
 }
-
-import { UserPlus, UserMinus, Trash2, Edit2 } from 'lucide-react';

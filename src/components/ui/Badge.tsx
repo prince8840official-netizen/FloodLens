@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: 'critical' | 'high' | 'moderate' | 'normal' | 'success' | 'info' | 'default';
+  variant?: 'critical' | 'high' | 'moderate' | 'normal' | 'success' | 'warning' | 'info' | 'default';
   size?: 'sm' | 'md' | 'lg';
   dot?: boolean;
 }
@@ -13,6 +13,7 @@ export function Badge({ className, variant = 'default', size = 'md', dot, childr
     moderate: 'badge-moderate',
     normal: 'badge-normal',
     success: 'badge-success',
+    warning: 'badge-warning',
     info: 'badge-info',
     default: 'badge bg-flood-border text-flood-muted',
   };
@@ -39,7 +40,7 @@ export function Badge({ className, variant = 'default', size = 'md', dot, childr
 }
 
 interface StatusBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  status: 'critical' | 'high' | 'moderate' | 'normal' | 'resolved' | 'active' | 'enroute' | 'idle' | 'pending' | 'verified' | 'merged' | 'rejected' | 'responding' | 'maintenance' | 'success';
+  status: 'critical' | 'high' | 'moderate' | 'normal' | 'resolved' | 'active' | 'enroute' | 'idle' | 'pending' | 'verified' | 'merged' | 'rejected' | 'responding' | 'maintenance' | 'success' | 'on-site' | 'resolving' | 'completed';
   size?: 'sm' | 'md' | 'lg';
 }
 
@@ -60,6 +61,9 @@ export function StatusBadge({ status, size = 'md', className, ...props }: Status
     responding: { variant: 'high', label: 'RESPONDING', dot: true },
     maintenance: { variant: 'warning', label: 'MAINTENANCE', dot: true },
     success: { variant: 'success', label: 'SUCCESS', dot: true },
+    'on-site': { variant: 'high', label: 'ON SITE', dot: true },
+    resolving: { variant: 'moderate', label: 'RESOLVING', dot: true },
+    completed: { variant: 'success', label: 'COMPLETED', dot: true },
   };
   
   const cfg = config[status] || config.normal;

@@ -97,3 +97,44 @@ export function KPIGrid({ cards, columns = 4, gap = 4 }: KPIGridProps) {
     </div>
   );
 }
+
+export interface MetricCardProps {
+  label: string;
+  value: string | number;
+  unit?: string;
+  trend?: { value: number; label: string };
+  icon?: React.ReactNode;
+  color?: string;
+}
+
+export function MetricCard({ label, value, unit, trend, icon, color = '#06b6d4' }: MetricCardProps) {
+  return (
+    <div className="glass rounded-lg p-4 border border-flood-border">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-medium text-flood-muted uppercase tracking-wider">{label}</p>
+          <div className="mt-1 flex items-baseline gap-1">
+            <span className="text-2xl font-bold text-flood-text">{value}</span>
+            {unit && <span className="text-sm text-flood-muted">{unit}</span>}
+          </div>
+          {trend && (
+            <div className="mt-2 flex items-center gap-1 text-xs">
+              {trend.value > 0 ? (
+                <svg className="w-3 h-3 text-flood-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+              ) : trend.value < 0 ? (
+                <svg className="w-3 h-3 text-flood-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+              ) : (
+                <svg className="w-3 h-3 text-flood-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14"/></svg>
+              )}
+              <span className={clsx(trend.value > 0 && 'text-flood-success', trend.value < 0 && 'text-flood-danger', trend.value === 0 && 'text-flood-muted')}>
+                {Math.abs(trend.value)}%
+              </span>
+              <span className="text-flood-muted">{trend.label}</span>
+            </div>
+          )}
+        </div>
+        {icon && <div className="p-2 rounded-lg" style={{ backgroundColor: `${color}20` }}><span style={{ color }}>{icon}</span></div>}
+      </div>
+    </div>
+  );
+}

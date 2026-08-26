@@ -38,7 +38,7 @@ export function Dashboard() {
     roads, incidents, teams, drains, cameras, activeMapLayers, mapCenter, mapZoom,
     selectedRoad, selectedIncident, kpi,
     onRoadClick, onDrainClick, onIncidentClick, onTeamClick, onCameraClick, onMapClick,
-    setActiveMapLayers,
+    dispatch,
   } = useApp();
 
   const criticalIncidents = incidents.filter(i => i.severity === 'critical' || i.severity === 'high').slice(0, 5);
@@ -54,7 +54,7 @@ export function Dashboard() {
   ];
 
   const handleLayerToggle = (layerId: string) => {
-    setActiveMapLayers(prev => prev.includes(layerId) ? prev.filter(l => l !== layerId) : [...prev, layerId]);
+    dispatch({ type: 'TOGGLE_MAP_LAYER', payload: layerId });
   };
 
   const criticalIncidentItems = criticalIncidents.map(inc => (

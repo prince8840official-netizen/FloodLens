@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { clsx } from 'clsx';
 import { 
   ListChecks, Search, AlertTriangle, MapPin, 
@@ -120,6 +121,3 @@ export function Incidents() {
     </div>
   );
 }
-
-import { useState } from 'react';
-import { Plus } from 'lucide-react';

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, LayerGroup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, LayerGroup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { clsx } from 'clsx';
-import type { Road, Drain, FloodIncident, ResponseTeam, CameraFeed, Coordinates, MapLayer, MapLayerConfig } from '../../types';
+import type { Road, Drain, FloodIncident, ResponseTeam, CameraFeed, Coordinates, MapLayer } from '../../types';
 import { getSeverityColor } from '../../data/mockData';
 
 const kanpurCenter: Coordinates = { lat: 26.4499, lng: 80.3319 };
@@ -14,6 +14,14 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
+
+function MapReadyHandler({ onReady }: { onReady: (map: L.Map) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    onReady(map);
+  }, []);
+  return null;
+}
 
 interface MapMarkersProps {
   roads: Road[];
@@ -40,6 +48,18 @@ function MapMarkers({
   const predictedRoads = roads.filter(r => r.severity === 'moderate' && r.probability > 50);
   const blockedDrains = drains.filter(d => d.status === 'blocked' || d.blockageProbability > 70);
 
+  const handlePolylineClick = (callback: () => void) => ({
+    onClick: callback
+  });
+
+  const handleCircleMarkerClick = (callback: () => void) => ({
+    onClick: callback
+  });
+
+  const handleMarkerClick = (callback: () => void) => ({
+    onClick: callback
+  });
+
   return (
     <>
       {activeLayers.includes('flooded-roads') && (
@@ -52,7 +72,9 @@ function MapMarkers({
               weight={4}
               opacity={0.8}
               className={clsx('leaflet-interactive', selectedRoad?.id === road.id && 'selected')}
-              onClick={() => onRoadClick(road)}
+              eventHandlers={{
+                click: () => onRoadClick(road)
+              }}
             >
               <Popup>
                 <div className="p-1">
@@ -76,7 +98,9 @@ function MapMarkers({
               opacity={0.6}
               dashArray="8, 6"
               className="leaflet-interactive"
-              onClick={() => onRoadClick(road)}
+              eventHandlers={{
+                click: () => onRoadClick(road)
+              }}
             >
               <Popup>
                 <div className="p-1">
@@ -101,7 +125,9 @@ function MapMarkers({
               fillOpacity={0.8}
               weight={2}
               className="leaflet-interactive"
-              onClick={() => onDrainClick(drain)}
+              eventHandlers={{
+                click: () => onDrainClick(drain)
+              }}
             >
               <Popup>
                 <div className="p-1 min-w-[180px]">
@@ -128,7 +154,9 @@ function MapMarkers({
                 iconSize: [24, 24],
                 iconAnchor: [12, 12],
               })}
-              onClick={() => onDrainClick(drain)}
+              eventHandlers={{
+                click: () => onDrainClick(drain)
+              }}
             >
               <Popup>
                 <div className="p-1 min-w-[180px]">
@@ -150,11 +178,13 @@ function MapMarkers({
               position={[camera.coordinates.lat, camera.coordinates.lng]}
               icon={L.divIcon({
                 className: 'camera-marker',
-                html: `<div class="w-7 h-7 rounded-lg bg-flood-primary/90 border-2 border-white flex items-center justify-center ${camera.floodDetected ? 'animate-pulse ring-2 ring-flood-danger' : ''}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></div>`,
+                html: `<div class="w-7 h-7 rounded-lg bg-flood-primary/90 border-2 border-white flex items-center justify-center ${camera.floodDetected ? 'animate-pulse ring-2 ring-flood-danger' : ''}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7z"/></svg></div>`,
                 iconSize: [28, 28],
                 iconAnchor: [14, 14],
               })}
-              onClick={() => onCameraClick(camera)}
+              eventHandlers={{
+                click: () => onCameraClick(camera)
+              }}
             >
               <Popup>
                 <div className="p-1 min-w-[200px]">
@@ -181,7 +211,9 @@ function MapMarkers({
                 iconSize: [24, 24],
                 iconAnchor: [12, 12],
               })}
-              onClick={() => onDrainClick(drain)}
+              eventHandlers={{
+                click: () => onDrainClick(drain)
+              }}
             >
               <Popup>
                 <div className="p-1 min-w-[180px]">
@@ -206,13 +238,15 @@ function MapMarkers({
                 className: 'team-marker',
                 html: `<div class="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center ${team.status === 'enroute' ? 'animate-pulse ring-2 ring-flood-warning' : team.status === 'on-site' ? 'ring-2 ring-flood-primary' : ''}">
                   <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
                   </svg>
                 </div>`,
                 iconSize: [32, 32],
                 iconAnchor: [16, 16],
               })}
-              onClick={() => onTeamClick(team)}
+              eventHandlers={{
+                click: () => onTeamClick(team)
+              }}
             >
               <Popup>
                 <div className="p-1 min-w-[200px]">
@@ -239,7 +273,9 @@ function MapMarkers({
                 iconSize: [28, 28],
                 iconAnchor: [14, 14],
               })}
-              onClick={() => onDrainClick(drain)}
+              eventHandlers={{
+                click: () => onDrainClick(drain)
+              }}
             >
               <Popup>
                 <div className="p-1 min-w-[180px]">
@@ -266,7 +302,9 @@ function MapMarkers({
             iconSize: [30, 30],
             iconAnchor: [15, 15],
           })}
-          onClick={() => onIncidentClick(incident)}
+          eventHandlers={{
+            click: () => onIncidentClick(incident)
+          }}
         >
           <Popup>
             <div className="p-1 min-w-[220px]">
@@ -282,20 +320,6 @@ function MapMarkers({
       ))}
     </>
   );
-}
-
-function MapViewController({ center, zoom }: { center: Coordinates; zoom: number }) {
-  const map = useMapEvents({
-    moveend() {
-      // Map movement handled by parent
-    },
-  });
-  
-  useEffect(() => {
-    map.flyTo([center.lat, center.lng], zoom, { animate: true, duration: 1 });
-  }, [center, zoom, map]);
-
-  return null;
 }
 
 interface FloodMapProps {
@@ -337,13 +361,25 @@ export function FloodMap({
     });
   };
 
-  return (
+  // Handle center/zoom changes
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.flyTo([center.lat, center.lng], zoom, { animate: true, duration: 1 });
+    }
+  }, [center, zoom]);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.flyTo([center.lat, center.lng], zoom, { animate: true, duration: 1 });
+    }
+  }, [center, zoom]);
+
+return (
     <div className={clsx('rounded-xl overflow-hidden border border-flood-border', className)} style={{ height }}>
       <MapContainer
         center={[center.lat, center.lng]}
         zoom={zoom}
         scrollWheelZoom={true}
-        whenReady={handleMapReady}
         className="h-full w-full"
         attributionControl={false}
       >
@@ -353,7 +389,6 @@ export function FloodMap({
           subdomains="abcd"
           maxZoom={19}
         />
-        <MapViewController center={center} zoom={zoom} />
         <MapMarkers
           roads={roads}
           drains={drains}

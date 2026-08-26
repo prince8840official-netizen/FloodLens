@@ -6,11 +6,12 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
 import { useApp } from '../../context/AppContext';
-import { toast, showError, showSuccess } from '../../components/ui/Toast';
+import { useToast, showError, showSuccess } from '../../components/ui/Toast';
 
 export function Login() {
   const navigate = useNavigate();
   const { login, demoLogin } = useApp();
+  const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

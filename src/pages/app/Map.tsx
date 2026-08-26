@@ -12,13 +12,14 @@ import { LayerControl } from '../../components/map/LayerControl';
 import { MapControls } from '../../components/map/LayerControl';
 import { useApp } from '../../context/AppContext';
 import { mockRoads, mockDrains, mockIncidents, mockTeams, mockCameraFeeds, mockMapLayers } from '../../data/mockData';
+import { StatusBadge } from '../../components/ui/Badge';
 
 export function MapPage() {
   const { 
     roads, drains, incidents, teams, cameras, 
     activeMapLayers, mapCenter, mapZoom,
     onRoadClick, onDrainClick, onIncidentClick, onTeamClick, onCameraClick, onMapClick,
-    setActiveMapLayers,
+    dispatch,
     selectedRoad, selectedIncident, selectedDrain, selectedTeam,
   } = useApp();
 
@@ -35,13 +36,18 @@ export function MapPage() {
     
     const target = road || incident || drain || team;
     if (target && 'coordinates' in target) {
-      onMapClick(target.coordinates, 15);
+      const coords = Array.isArray(target.coordinates) ? target.coordinates[0] : target.coordinates;
+      onMapClick(coords, 15);
       if ('id' in target && 'roadName' in target) onIncidentClick(target as any);
       else if ('id' in target && 'name' in target && 'type' in target) onTeamClick(target as any);
       else if ('id' in target && 'capacity' in target) onDrainClick(target as any);
       else onRoadClick(target as any);
     }
     setSearchQuery('');
+  };
+
+  const handleLayerToggle = (layerId: string) => {
+    dispatch({ type: 'TOGGLE_MAP_LAYER', payload: layerId });
   };
 
   return (
@@ -94,7 +100,7 @@ export function MapPage() {
 
           {showLayers && (
             <div className="absolute bottom-4 left-4 z-20">
-              <LayerControl layers={mockMapLayers} activeLayers={activeMapLayers} onToggle={setActiveMapLayers} />
+              <LayerControl layers={mockMapLayers} activeLayers={activeMapLayers} onToggle={handleLayerToggle} />
             </div>
           )}
 
@@ -217,6 +223,3 @@ export function MapPage() {
     </div>
   );
 }
-
-import { clsx } from 'clsx';
-import { StatusBadge } from '../../components/ui/Badge';

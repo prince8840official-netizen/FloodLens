@@ -80,7 +80,7 @@ export function TabPanels({ tabs, activeTab, children, className }: TabPanelsPro
           hidden={activeTab !== tab.id}
           className={activeTab === tab.id ? 'animate-in' : 'hidden'}
         >
-          {typeof children === 'function' ? children(tab.id) : children}
+          {children}
         </div>
       ))}
     </div>

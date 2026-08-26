@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { MapLayer } from '../../types';
+import type { MapLayer } from '../../types';
 import { 
   Route, GitBranch, AlertCircle, Wifi, 
   Database, Truck, Building2, Eye, EyeOff

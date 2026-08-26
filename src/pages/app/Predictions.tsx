@@ -33,7 +33,7 @@ const severityOptions = [
 ];
 
 export function Predictions() {
-  const { roads, onRoadClick, activeMapLayers, mapCenter, mapZoom, onMapClick, setActiveMapLayers } = useApp();
+  const { roads, onRoadClick, activeMapLayers, mapCenter, mapZoom, onMapClick, dispatch } = useApp();
   const [timeFilter, setTimeFilter] = useState('60');
   const [severityFilter, setSeverityFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,7 +45,7 @@ export function Predictions() {
     return matchesTime && matchesSeverity && matchesSearch;
   }).sort((a, b) => b.probability - a.probability), [roads, timeFilter, severityFilter, searchQuery]);
 
-  const handleLayerToggle = (layerId: string) => setActiveMapLayers(prev => prev.includes(layerId) ? prev.filter(l => l !== layerId) : [...prev, layerId]);
+  const handleLayerToggle = (layerId: string) => dispatch({ type: 'TOGGLE_MAP_LAYER', payload: layerId });
 
   return (
     <div className="space-y-6">

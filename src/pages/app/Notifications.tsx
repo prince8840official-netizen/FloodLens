@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { clsx } from 'clsx';
 import { 
   Bell, Filter, Search, X, CheckCircle, AlertCircle, 
-  MapPin, Truck, Eye, Clock, Download, BellOff, BellRing
+  MapPin, Truck, Eye, Clock, Download, BellOff, BellRing, Wrench
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -206,5 +206,3 @@ export function Notifications() {
     </div>
   );
 }
-
-import { Wrench, CheckCircle } from 'lucide-react';

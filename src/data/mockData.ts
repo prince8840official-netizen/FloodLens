@@ -1545,6 +1545,8 @@ export const getSeverityColor = (severity: Severity): string => {
     case 'moderate': return '#fbbf24';
     case 'normal': return '#06b6d4';
     case 'resolved': return '#22c55e';
+    case 'success': return '#22c55e';
+    default: return '#06b6d4';
   }
 };
 
@@ -1555,6 +1557,8 @@ export const getSeverityLabel = (severity: Severity): string => {
     case 'moderate': return 'MODERATE';
     case 'normal': return 'NORMAL';
     case 'resolved': return 'RESOLVED';
+    case 'success': return 'RESOLVED';
+    default: return 'NORMAL';
   }
 };
 
@@ -1576,6 +1580,7 @@ export const getTeamStatusLabel = (status: TeamStatus): string => {
     idle: 'AVAILABLE',
     enroute: 'EN ROUTE',
     'on-site': 'ON SITE',
+    responding: 'RESPONDING',
     resolving: 'RESOLVING',
     completed: 'COMPLETED',
   };

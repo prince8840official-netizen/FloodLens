@@ -98,7 +98,7 @@ export function RoadEye() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card variant="hover"><CardContent className="p-4 text-center"><p className="text-sm text-flood-muted">Ward</p><p className="font-medium text-flood-text">{selectedCamera.ward}</p></CardContent></Card>
-        <Card variant="hover"><CardContent className="p-4 text-center"><p className="text-sm text-flood-muted">Status</p><StatusBadge status={selectedCamera.status} /></CardContent></Card>
+        <Card variant="hover"><CardContent className="p-4 text-center"><p className="text-sm text-flood-muted">Status</p><StatusBadge status={selectedCamera.status as any} /></CardContent></Card>
         <Card variant="hover"><CardContent className="p-4 text-center"><p className="text-sm text-flood-muted">Severity</p><StatusBadge status={selectedCamera.severity} /></CardContent></Card>
         <Card variant="hover"><CardContent className="p-4 text-center"><p className="text-sm text-flood-muted">Last Updated</p><p className="font-medium text-flood-text">{new Date(selectedCamera.lastUpdated).toLocaleTimeString()}</p></CardContent></Card>
       </div>
@@ -141,6 +141,3 @@ export function RoadEye() {
     </div>
   );
 }
-
-import { useState } from 'react';
-import { Camera, Shield } from 'lucide-react';

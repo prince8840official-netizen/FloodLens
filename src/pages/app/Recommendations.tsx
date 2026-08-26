@@ -139,5 +139,3 @@ export function Recommendations() {
     </div>
   );
 }
-
-import { useState } from 'react';
