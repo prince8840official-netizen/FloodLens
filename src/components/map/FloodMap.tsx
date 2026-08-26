@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, LayerGroup, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, LayerGroup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { clsx } from 'clsx';
@@ -16,55 +16,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// Map style configurations
-interface MapStyleConfig {
-  id: string;
-  name: string;
-  url: string;
-  attribution: string;
-  subdomains: string;
-  maxZoom: number;
-  overlayUrl?: string;
-}
-
-export const MAP_STYLES: Record<string, MapStyleConfig> = {
-  satellite: {
-    id: 'satellite',
-    name: 'Satellite',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-    subdomains: '',
-    maxZoom: 19,
-  },
-  'satellite-labels': {
-    id: 'satellite-labels',
-    name: 'Satellite + Labels',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    overlayUrl: 'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-    subdomains: '',
-    maxZoom: 19,
-  },
-  'dark-street': {
-    id: 'dark-street',
-    name: 'Dark Street Map',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 19,
-  },
-  'standard-street': {
-    id: 'standard-street',
-    name: 'Standard Street Map',
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    subdomains: 'abcd',
-    maxZoom: 19,
-  },
-};
-
-export type MapStyleId = keyof typeof MAP_STYLES;
-
 function MapReadyHandler({ onReady }: { onReady: (map: L.Map) => void }) {
   const map = useMap();
   useEffect(() => {
@@ -73,47 +24,12 @@ function MapReadyHandler({ onReady }: { onReady: (map: L.Map) => void }) {
   return null;
 }
 
-// FlyTo handler for smooth map navigation
 function FlyToHandler({ center, zoom }: { center: Coordinates; zoom: number }) {
   const map = useMap();
   useEffect(() => {
     map.flyTo([center.lat, center.lng], zoom, { animate: true, duration: 1.2 });
   }, [center, zoom]);
   return null;
-}
-
-// MapStyleLayer handles base map switching
-function MapStyleLayer({ styleId }: { styleId: MapStyleId }) {
-  const style = MAP_STYLES[styleId];
-  
-  if (styleId === 'satellite-labels') {
-    return (
-      <>
-        <TileLayer
-          key="satellite-base"
-          url={style.url}
-          attribution={style.attribution}
-          maxZoom={style.maxZoom}
-        />
-        <TileLayer
-          key="satellite-labels"
-          url={style.overlayUrl}
-          attribution=""
-          maxZoom={style.maxZoom}
-        />
-      </>
-    );
-  }
-  
-  return (
-    <TileLayer
-      key={style.id}
-      url={style.url}
-      attribution={style.attribution}
-      subdomains={style.subdomains}
-      maxZoom={style.maxZoom}
-    />
-  );
 }
 
 interface MapMarkersProps {
@@ -571,7 +487,6 @@ function MapMarkers({
           })}
           eventHandlers={{
             click: () => {
-              // Could open a custom popup or use existing incident detail
               console.log('RoadWatch incident clicked:', rw.id);
             }
           }}
@@ -636,7 +551,6 @@ export function FloodMap({
 }: FloodMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const [mapReady, setMapReady] = useState(false);
-  const [mapStyle, setMapStyle] = useState<MapStyleId>('satellite');
 
   const handleMapReady = (map: L.Map) => {
     mapRef.current = map;
@@ -665,7 +579,12 @@ export function FloodMap({
         attributionControl={false}
         whenReady={handleMapReady as any}
       >
-        <MapStyleLayer styleId={mapStyle} />
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          subdomains="abcd"
+          maxZoom={19}
+        />
         <FlyToHandler center={center} zoom={zoom} />
         <MapReadyHandler onReady={handleMapReady} />
         <MapMarkers
@@ -685,29 +604,6 @@ export function FloodMap({
           selectedIncident={selectedIncident}
         />
       </MapContainer>
-      {/* Map Style Switcher */}
-      <div className="absolute top-4 right-4 z-20">
-        <Tooltip content="Switch Map Style">
-          <div className="glass-strong rounded-xl p-2 border border-flood-border flex gap-1">
-            {Object.entries(MAP_STYLES).map(([id, style]) => (
-              <button
-                key={id}
-                onClick={() => setMapStyle(id as MapStyleId)}
-                className={clsx(
-                  'p-2 rounded-lg transition-colors text-sm font-medium',
-                  mapStyle === id 
-                    ? 'bg-flood-primary text-flood-bg' 
-                    : 'text-flood-muted hover:text-flood-text hover:bg-flood-card/50'
-                )}
-                aria-label={style.name}
-                aria-pressed={mapStyle === id}
-              >
-                {style.name}
-              </button>
-            ))}
-          </div>
-        </Tooltip>
-      </div>
     </div>
   );
 }
@@ -723,7 +619,12 @@ export function MiniMap({ center, zoom, className }: { center: Coordinates; zoom
         attributionControl={false}
         className="h-full w-full"
       >
-        <MapStyleLayer styleId="satellite" />
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution=''
+          subdomains="abcd"
+          maxZoom={19}
+        />
       </MapContainer>
     </div>
   );
