@@ -39,26 +39,28 @@ export default function App() {
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/technology" element={<Technology />} />
             <Route path="/about" element={<About />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/map" element={<MapPage />} />
-            <Route path="/predictions" element={<Predictions />} />
-            <Route path="/incidents" element={<Incidents />} />
-            <Route path="/incidents/:id" element={<IncidentDetails />} />
-            <Route path="/roads" element={<Roads />} />
-            <Route path="/roads/:id" element={<RoadDetails />} />
-            <Route path="/drainage" element={<Drainage />} />
-            <Route path="/roadeye" element={<RoadEye />} />
-            <Route path="/roadwatch" element={<RoadWatch />} />
-            <Route path="/roadwatch/incidents" element={<RoadWatchIncidents />} />
-            <Route path="/municipal" element={<MunicipalDashboard />} />
-            <Route path="/teams" element={<Teams />} />
-            <Route path="/citizen-reports" element={<CitizenReports />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/recommendations" element={<Recommendations />} />
-            <Route path="/simulation" element={<Simulation />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route element={<AppLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/map" element={<MapPage />} />
+              <Route path="/predictions" element={<Predictions />} />
+              <Route path="/incidents" element={<Incidents />} />
+              <Route path="/incidents/:id" element={<IncidentDetails />} />
+              <Route path="/roads" element={<Roads />} />
+              <Route path="/roads/:id" element={<RoadDetails />} />
+              <Route path="/drainage" element={<Drainage />} />
+              <Route path="/roadeye" element={<RoadEye />} />
+              <Route path="/roadwatch" element={<RoadWatch />} />
+              <Route path="/roadwatch/incidents" element={<RoadWatchIncidents />} />
+              <Route path="/municipal" element={<MunicipalDashboard />} />
+              <Route path="/teams" element={<Teams />} />
+              <Route path="/citizen-reports" element={<CitizenReports />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/recommendations" element={<Recommendations />} />
+              <Route path="/simulation" element={<Simulation />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AppProvider>
