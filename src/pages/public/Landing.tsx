@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { 
   Zap, MapPin, Cpu, Shield, Eye, Brain, 
-  ArrowRight, ChevronDown, CheckCircle, XCircle,
+  ArrowRight, CheckCircle, XCircle,
   AlertTriangle, Droplets, Navigation, Search,
   Users, BarChart, Clock, Lightbulb, FlaskConical
 } from 'lucide-react';
@@ -107,8 +107,7 @@ export function Landing() {
                     </Button>
                   </Link>
                   <Button variant="secondary" size="lg" onClick={() => document.getElementById('solution')?.scrollIntoView({ behavior: 'smooth' })} className="w-full sm:w-auto py-4 px-6 text-base sm:text-lg min-h-[48px]">
-                    Explore FloodLens
-                    <ChevronDown className="w-5 h-5 flex-shrink-0" />
+                    Explore FloodLens →
                   </Button>
                 </div>
               </div>
