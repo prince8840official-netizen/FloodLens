@@ -13,6 +13,7 @@ import { MapControls } from '../../components/map/LayerControl';
 import { useApp } from '../../context/AppContext';
 import { mockRoads, mockDrains, mockIncidents, mockTeams, mockCameraFeeds, mockMapLayers } from '../../data/mockData';
 import { StatusBadge } from '../../components/ui/Badge';
+import { Tooltip } from '../../components/ui/Tooltip';
 
 export function MapPage() {
   const { 
@@ -92,9 +93,15 @@ export function MapPage() {
 
           <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
             <div className="glass-strong rounded-xl p-2 border border-flood-border flex gap-1">
-              <Button variant="ghost" size="sm" onClick={() => setFullscreen(!fullscreen)} icon={fullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />} />
-              <Button variant="ghost" size="sm" onClick={() => setShowLayers(!showLayers)} icon={showLayers ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />} />
-              <Button variant="ghost" size="sm" onClick={() => setShowControls(!showControls)} icon={<Layers className="w-4 h-4" />} />
+              <Tooltip content="Toggle fullscreen">
+                <Button variant="ghost" size="sm" onClick={() => setFullscreen(!fullscreen)} icon={fullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />} />
+              </Tooltip>
+              <Tooltip content={showLayers ? 'Hide layers' : 'Show layers'}>
+                <Button variant="ghost" size="sm" onClick={() => setShowLayers(!showLayers)} icon={showLayers ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />} />
+              </Tooltip>
+              <Tooltip content="Map controls">
+                <Button variant="ghost" size="sm" onClick={() => setShowControls(!showControls)} icon={<Layers className="w-4 h-4" />} />
+              </Tooltip>
             </div>
           </div>
 

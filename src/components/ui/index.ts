@@ -10,3 +10,4 @@ export { Tabs } from './Tabs';
 export { ToastProvider, useToast, showSuccess, showError, showWarning, showInfo } from './Toast';
 export { Spinner, Skeleton, CardSkeleton, TableSkeleton, MapSkeleton, PageSkeleton } from './Loading';
 export { KPICard, KPIGrid, MetricCard } from './KPICard';
+export { Tooltip } from './Tooltip';

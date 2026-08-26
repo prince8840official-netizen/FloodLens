@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { 
   AlertTriangle, MapPin, Droplets, Users, CheckCircle, 
@@ -34,6 +34,7 @@ const sidebarNav = [
 ];
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const { 
     roads, incidents, teams, drains, cameras, activeMapLayers, mapCenter, mapZoom,
     selectedRoad, selectedIncident, kpi,
@@ -46,11 +47,11 @@ export function Dashboard() {
   const activeTeamsList = teams.filter(t => t.status !== 'idle').slice(0, 4);
 
   const kpiCards = [
-    { title: 'HIGH-RISK ROADS', value: kpi.highRiskRoads, icon: <AlertTriangle className="w-6 h-6" />, trend: { value: 2, label: 'vs 1hr ago' }, status: 'critical' as const },
-    { title: 'CRITICAL INCIDENTS', value: kpi.criticalIncidents, icon: <MapPin className="w-6 h-6" />, trend: { value: 1, label: 'new' }, status: 'critical' as const },
-    { title: 'PREDICTED EVENTS', value: kpi.predictedEvents, icon: <Droplets className="w-6 h-6" />, trend: { value: -3, label: 'vs 1hr ago' }, status: 'warning' as const },
-    { title: 'ACTIVE RESPONSE TEAMS', value: kpi.activeTeams, icon: <Users className="w-6 h-6" />, trend: { value: 0, label: 'deployed' }, status: 'normal' as const },
-    { title: 'AI-VERIFIED RESOLVED', value: kpi.aiVerifiedResolved, icon: <CheckCircle className="w-6 h-6" />, trend: { value: 3, label: 'today' }, status: 'success' as const },
+    { title: 'HIGH-RISK ROADS', value: kpi.highRiskRoads, icon: <AlertTriangle className="w-6 h-6" />, trend: { value: 2, label: 'vs 1hr ago' }, status: 'critical' as const, onClick: () => navigate('/roads?severity=critical,high') },
+    { title: 'CRITICAL INCIDENTS', value: kpi.criticalIncidents, icon: <MapPin className="w-6 h-6" />, trend: { value: 1, label: 'new' }, status: 'critical' as const, onClick: () => navigate('/incidents?status=critical') },
+    { title: 'PREDICTED EVENTS', value: kpi.predictedEvents, icon: <Droplets className="w-6 h-6" />, trend: { value: -3, label: 'vs 1hr ago' }, status: 'warning' as const, onClick: () => navigate('/predictions') },
+    { title: 'ACTIVE RESPONSE TEAMS', value: kpi.activeTeams, icon: <Users className="w-6 h-6" />, trend: { value: 0, label: 'deployed' }, status: 'normal' as const, onClick: () => navigate('/teams?status=enroute,on-site,resolving') },
+    { title: 'AI-VERIFIED RESOLVED', value: kpi.aiVerifiedResolved, icon: <CheckCircle className="w-6 h-6" />, trend: { value: 3, label: 'today' }, status: 'success' as const, onClick: () => navigate('/incidents?status=resolved') },
   ];
 
   const handleLayerToggle = (layerId: string) => {

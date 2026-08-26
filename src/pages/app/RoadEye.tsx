@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import { 
   Video, Search, Eye, EyeOff, AlertTriangle,
   Camera, Wifi, Download, Shield, Play, Pause,
-  Volume2, VolumeX, Maximize, Minimize, X
+  Volume2, VolumeX, Maximize, Minimize, X, Brain, Zap, FileText
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -11,7 +11,9 @@ import { Badge, StatusBadge } from '../../components/ui/Badge';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Modal } from '../../components/ui/Modal';
+import { Tooltip } from '../../components/ui/Tooltip';
 import { useApp } from '../../context/AppContext';
+import { useToast } from '../../components/ui/Toast';
 import { mockCameraFeeds } from '../../data/mockData';
 import type { CameraFeed } from '../../types';
 
@@ -29,12 +31,15 @@ const detectionOptions = [
 ];
 
 export function RoadEye() {
-  const { cameras, onCameraClick } = useApp();
+  const { cameras, onCameraClick, createIncidentFromPrediction } = useApp();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [detectionFilter, setDetectionFilter] = useState('all');
   const [selectedCamera, setSelectedCamera] = useState<CameraFeed | null>(null);
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<{ severity: string; confidence: number; waterDepth: string } | null>(null);
 
   const filteredCameras = useMemo(() => cameras.filter(cam => {
     const matchesStatus = statusFilter === 'all' || cam.status === statusFilter;
@@ -47,11 +52,18 @@ export function RoadEye() {
   const onlineCount = cameras.filter(c => c.status === 'online').length;
 
   const cameraItems = filteredCameras.map(cam => (
-    <Card key={cam.id} variant="hover" className="overflow-hidden" onClick={() => { setSelectedCamera(cam); onCameraClick(cam); setVideoPlaying(true); }}>
+    <Card key={cam.id} variant="hover" className="overflow-hidden" onClick={() => { setSelectedCamera(cam); onCameraClick(cam); setVideoPlaying(true); setAnalysisResult(null); }}>
       <div className="relative aspect-video overflow-hidden bg-flood-bg">
         <img src={cam.imageUrl} alt={cam.name} className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity">
-          <Button size="lg" variant="secondary" onClick={(e) => { e.stopPropagation(); setSelectedCamera(cam); setVideoPlaying(true); }} icon={<Play className="w-5 h-5" />}>View Live</Button>
+          <div className="flex gap-2">
+            <Button size="lg" variant="secondary" onClick={(e) => { e.stopPropagation(); setSelectedCamera(cam); setVideoPlaying(true); setAnalysisResult(null); }} icon={<Play className="w-5 h-5" />}>View Live</Button>
+            {cam.floodDetected && (
+              <Tooltip content="Analyze current frame">
+                <Button size="lg" variant="primary" onClick={(e) => { e.stopPropagation(); handleAnalyzeFrame(cam); }} icon={<Brain className="w-5 h-5" />} disabled={analyzing} loading={analyzing}>Analyze</Button>
+              </Tooltip>
+            )}
+          </div>
         </div>
         <div className="absolute top-2 right-2 flex gap-1">
           <StatusBadge status={cam.severity} size="sm" />
@@ -78,6 +90,27 @@ export function RoadEye() {
     </Card>
   ));
 
+  const handleAnalyzeFrame = async (cam: CameraFeed) => {
+    setAnalyzing(true);
+    toast({ type: 'info', title: 'Analyzing Frame', message: 'RoadEye AI processing camera feed...' });
+    await new Promise(r => setTimeout(r, 2000));
+    const severity = cam.confidence > 90 ? 'Critical' : cam.confidence > 70 ? 'High' : 'Moderate';
+    const result = { severity, confidence: cam.confidence, waterDepth: `${(0.5 + Math.random() * 1.5).toFixed(1)}m` };
+    setAnalysisResult(result);
+    setAnalyzing(false);
+    toast({ type: 'success', title: 'Analysis Complete', message: `Waterlogging detected: ${severity} (${cam.confidence}% confidence)` });
+  };
+
+  const handleCreateIncident = async (cam: CameraFeed) => {
+    const road = cam.ward === 'Civil Lines' ? 'R-047' : cam.ward === 'Mall Road' ? 'R-102' : 'R-018';
+    toast({ type: 'info', title: 'Creating Incident', message: 'Auto-registering incident from camera detection...' });
+    await new Promise(r => setTimeout(r, 1000));
+    createIncidentFromPrediction(road);
+    toast({ type: 'success', title: 'Incident Created', message: `Incident auto-registered for ${road} from ${cam.name}` });
+    setSelectedCamera(null);
+    setVideoPlaying(false);
+  };
+
   const modalContent = selectedCamera ? (
     <div className="space-y-4">
       <div className="relative aspect-video bg-flood-bg rounded-lg overflow-hidden">
@@ -88,6 +121,16 @@ export function RoadEye() {
               <Button variant="secondary" size="sm" onClick={() => setVideoPlaying(!videoPlaying)} icon={videoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}>{videoPlaying ? 'Pause' : 'Play'}</Button>
               <Button variant="secondary" size="sm" icon={<Volume2 className="w-4 h-4" />}>Unmute</Button>
               <Button variant="secondary" size="sm" icon={<Maximize className="w-4 h-4" />}>Fullscreen</Button>
+              {selectedCamera.floodDetected && (
+                <>
+                  <Tooltip content="Analyze current frame">
+                    <Button variant="primary" size="sm" onClick={() => handleAnalyzeFrame(selectedCamera)} icon={<Brain className="w-4 h-4" />} disabled={analyzing} loading={analyzing}>Analyze</Button>
+                  </Tooltip>
+                  <Tooltip content="Create incident from detection">
+                    <Button variant="danger" size="sm" onClick={() => handleCreateIncident(selectedCamera)} icon={<FileText className="w-4 h-4" />} disabled={analyzing}>Create Incident</Button>
+                  </Tooltip>
+                </>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={selectedCamera.floodDetected ? 'critical' : 'success'} size="sm">{selectedCamera.floodDetected ? 'Flood Detected' : 'Normal'}</Badge>
@@ -96,6 +139,19 @@ export function RoadEye() {
           </div>
         </div>
       </div>
+      {analysisResult && (
+        <div className="p-4 bg-flood-primary/10 rounded-lg border border-flood-primary/30 animate-in">
+          <h4 className="font-medium text-flood-primary mb-3 flex items-center gap-2">
+            <Zap className="w-5 h-5" />
+            AI Analysis Result
+          </h4>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="p-3 bg-flood-bg rounded-lg"><p className="text-xs text-flood-muted">Severity</p><p className="font-bold text-flood-text">{analysisResult.severity}</p></div>
+            <div className="p-3 bg-flood-bg rounded-lg"><p className="text-xs text-flood-muted">Confidence</p><p className="font-bold text-flood-primary">{analysisResult.confidence}%</p></div>
+            <div className="p-3 bg-flood-bg rounded-lg"><p className="text-xs text-flood-muted">Est. Water Depth</p><p className="font-bold text-flood-critical">{analysisResult.waterDepth}</p></div>
+          </div>
+        </div>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card variant="hover"><CardContent className="p-4 text-center"><p className="text-sm text-flood-muted">Ward</p><p className="font-medium text-flood-text">{selectedCamera.ward}</p></CardContent></Card>
         <Card variant="hover"><CardContent className="p-4 text-center"><p className="text-sm text-flood-muted">Status</p><StatusBadge status={selectedCamera.status as any} /></CardContent></Card>

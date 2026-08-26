@@ -13,6 +13,7 @@ import { Badge, StatusBadge } from '../../components/ui/Badge';
 import { Tabs } from '../../components/ui/Tabs';
 import { Modal } from '../../components/ui/Modal';
 import { useApp } from '../../context/AppContext';
+import { useToast } from '../../components/ui/Toast';
 import { mockIncidents, getIncidentStatusLabel, formatTime } from '../../data/mockData';
 import type { FloodIncident } from '../../types';
 
@@ -38,10 +39,14 @@ const evidenceTabs = [
 export function IncidentDetails() {
   const { id } = useParams<{ id: string }>();
   const { incidents, assignTeamToIncident, resolveIncident, getAvailableTeams } = useApp();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showResolveModal, setShowResolveModal] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<string>('');
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [resolveLoading, setResolveLoading] = useState(false);
+  const [comparePosition, setComparePosition] = useState(50);
 
   const incident = incidents.find(i => i.id === id);
   const availableTeams = getAvailableTeams();
@@ -61,15 +66,19 @@ export function IncidentDetails() {
 
   const completedStages = incident.timeline.map(t => t.stage);
 
-  const handleAssignTeam = () => {
-    if (selectedTeam) {
-      assignTeamToIncident(incident.id, selectedTeam);
-      setShowAssignModal(false);
-      setSelectedTeam('');
-    }
+  const handleAssignTeam = async () => {
+    if (!selectedTeam) return;
+    setAssignLoading(true);
+    assignTeamToIncident(incident.id, selectedTeam);
+    await new Promise(r => setTimeout(r, 500));
+    toast({ type: 'success', title: 'Team Assigned', message: `Response team assigned to incident ${incident.id}` });
+    setShowAssignModal(false);
+    setSelectedTeam('');
+    setAssignLoading(false);
   };
 
-  const handleResolve = () => {
+  const handleResolve = async () => {
+    setResolveLoading(true);
     resolveIncident(incident.id, {
       beforeImageUrl: incident.evidence[0]?.imageUrl || '',
       afterImageUrl: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop',
@@ -80,7 +89,10 @@ export function IncidentDetails() {
       verifiedBy: 'FloodLens AI',
       notes: 'Road cleared, water level normalized',
     });
+    await new Promise(r => setTimeout(r, 800));
+    toast({ type: 'success', title: 'Resolution Verified', message: `Incident ${incident.id} AI verified and resolved` });
     setShowResolveModal(false);
+    setResolveLoading(false);
   };
 
   return (
@@ -288,22 +300,56 @@ export function IncidentDetails() {
             {availableTeams.map(team => (<button key={team.id} onClick={() => setSelectedTeam(team.id)} className={clsx('w-full p-3 rounded-lg border text-left transition-colors', selectedTeam === team.id ? 'border-flood-primary bg-flood-primary/10' : 'border-flood-border hover:bg-flood-card/50')}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-full bg-flood-primary/20 flex items-center justify-center"><MapPin className="w-4 h-4 text-flood-primary" /></div><div><p className="font-medium text-flood-text">{team.name}</p><p className="text-xs text-flood-muted">{team.type} · {team.distance}km away · ETA {team.eta}min</p></div></div><StatusBadge status={team.status} size="sm" /></div></button>))}
             {availableTeams.length === 0 && <p className="text-center text-flood-muted py-4">No available teams</p>}
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-flood-border"><Button variant="secondary" onClick={() => setShowAssignModal(false)}>Cancel</Button><Button onClick={handleAssignTeam} disabled={!selectedTeam}>Assign Team</Button></div>
+          <div className="flex justify-end gap-3 pt-4 border-t border-flood-border"><Button variant="secondary" onClick={() => setShowAssignModal(false)}>Cancel</Button><Button onClick={handleAssignTeam} disabled={!selectedTeam || assignLoading} loading={assignLoading}>Assign Team</Button></div>
         </div>
       </Modal>
 
-      <Modal isOpen={showResolveModal} onClose={() => setShowResolveModal(false)} title="Verify Resolution" size="md">
+      <Modal isOpen={showResolveModal} onClose={() => setShowResolveModal(false)} title="Verify Resolution" size="lg">
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-4 bg-flood-bg rounded-lg"><p className="text-sm text-flood-muted">BEFORE</p><img src={incident.evidence[0]?.imageUrl || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop'} alt="Before" className="mt-2 rounded-lg w-full h-32 object-cover" /><p className="text-xs text-flood-danger mt-1">Severe Waterlogging</p></div>
-            <div className="text-center p-4 bg-flood-bg rounded-lg"><p className="text-sm text-flood-muted">AFTER</p><img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop" alt="After" className="mt-2 rounded-lg w-full h-32 object-cover" /><p className="text-xs text-flood-success mt-1">Road Clear</p></div>
+          <div className="relative">
+            <p className="text-sm text-flood-muted text-center mb-4">Drag slider to compare Before / After</p>
+            <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-flood-bg">
+              <img 
+                src={incident.evidence[0]?.imageUrl || 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop'} 
+                alt="After - Road Clear" 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 overflow-hidden" style={{ width: `${comparePosition}%` }}>
+                <img 
+                  src={incident.evidence[0]?.imageUrl || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop'} 
+                  alt="Before - Severe Waterlogging" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div 
+                className="absolute top-0 bottom-0 w-1 bg-white/30 pointer-events-none"
+                style={{ left: `${comparePosition}%` }}
+              >
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white border-2 border-flood-border flex items-center justify-center shadow-lg">
+                  <svg className="w-4 h-4 text-flood-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 11l-5 5m0 0l5 5m-5-5h12"/></svg>
+                </div>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={comparePosition}
+                onChange={e => setComparePosition(Number(e.target.value))}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
+                aria-label="Compare Before and After images"
+              />
+              <div className="absolute bottom-2 left-2 right-2 flex justify-between px-2">
+                <span className="text-xs bg-flood-danger/90 text-white px-2 py-1 rounded">BEFORE</span>
+                <span className="text-xs bg-flood-success/90 text-white px-2 py-1 rounded">AFTER</span>
+              </div>
+            </div>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="p-3 rounded-lg bg-flood-success/10 border border-flood-success/30"><CheckCircle className="w-6 h-6 text-flood-success mx-auto mb-1" /><p className="text-xs text-flood-success">Camera Verified</p></div>
             <div className="p-3 rounded-lg bg-flood-success/10 border border-flood-success/30"><Database className="w-6 h-6 text-flood-success mx-auto mb-1" /><p className="text-xs text-flood-success">Sensor Verified</p></div>
             <div className="p-3 rounded-lg bg-flood-success/10 border border-flood-success/30"><Brain className="w-6 h-6 text-flood-success mx-auto mb-1" /><p className="text-xs text-flood-success">AI Verified</p></div>
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-flood-border"><Button variant="secondary" onClick={() => setShowResolveModal(false)}>Cancel</Button><Button variant="success" onClick={handleResolve} icon={<CheckCircle className="w-4 h-4" />}>Confirm Resolution</Button></div>
+          <div className="flex justify-end gap-3 pt-4 border-t border-flood-border"><Button variant="secondary" onClick={() => setShowResolveModal(false)}>Cancel</Button><Button variant="success" onClick={handleResolve} icon={<CheckCircle className="w-4 h-4" />} loading={resolveLoading}>Confirm Resolution</Button></div>
         </div>
       </Modal>
     </div>

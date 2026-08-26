@@ -55,6 +55,8 @@ interface AppState {
   rightDrawerOpen: boolean;
   rightDrawerContent: string | null;
   loading: boolean;
+  demoMode: boolean;
+  demoStep: number;
 }
 
 type AppAction =
@@ -86,7 +88,9 @@ type AppAction =
   | { type: 'DISMISS_RECOMMENDATION'; payload: string }
   | { type: 'ADD_SIMULATION'; payload: SimulationScenario }
   | { type: 'ADD_HISTORY'; payload: HistoricalIncident }
-  | { type: 'SET_LOADING'; payload: boolean };
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'TOGGLE_DEMO_MODE' }
+  | { type: 'SET_DEMO_STEP'; payload: number };
 
 const initialState: AppState = {
   incidents: mockIncidents,
@@ -112,6 +116,8 @@ const initialState: AppState = {
   rightDrawerOpen: false,
   rightDrawerContent: null,
   loading: false,
+  demoMode: false,
+  demoStep: 0,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -266,6 +272,12 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
     
+    case 'TOGGLE_DEMO_MODE':
+      return { ...state, demoMode: !state.demoMode, demoStep: !state.demoMode ? 0 : state.demoStep };
+    
+    case 'SET_DEMO_STEP':
+      return { ...state, demoStep: action.payload };
+    
     default:
       return state;
   }
@@ -295,6 +307,8 @@ interface AppContextType {
   rightDrawerOpen: boolean;
   rightDrawerContent: string | null;
   loading: boolean;
+  demoMode: boolean;
+  demoStep: number;
   cameras: CameraFeed[];
   dispatch: React.Dispatch<AppAction>;
   login: (email: string, password: string) => Promise<boolean>;
@@ -317,6 +331,9 @@ interface AppContextType {
   logout: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
   navigate: (path: string) => void;
+  toggleDemoMode: () => void;
+  setDemoStep: (step: number) => void;
+  runDemoScenario: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -673,6 +690,68 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_ACTIVE_LAYERS', payload: layers });
   };
 
+  const toggleDemoMode = () => {
+    dispatch({ type: 'TOGGLE_DEMO_MODE' });
+  };
+
+  const setDemoStep = (step: number) => {
+    dispatch({ type: 'SET_DEMO_STEP', payload: step });
+  };
+
+  const runDemoScenario = async () => {
+    if (!state.demoMode) return;
+    
+    const steps = [
+      { action: () => setDemoStep(1), delay: 500, message: 'Step 1: Road R-047 risk increases to 94%' },
+      { action: () => { 
+          const road = state.roads.find(r => r.id === 'R-047');
+          if (road) {
+            dispatch({ type: 'UPDATE_ROAD', payload: { id: 'R-047', severity: 'critical', probability: 94, floodScore: 94 } });
+          }
+        }, delay: 1000, message: 'Step 2: RoadEye detects waterlogging on CCTV' },
+      { action: () => { 
+          const cam = mockCameraFeeds.find(c => c.ward === 'Civil Lines');
+          if (cam) {
+            // Camera detection simulation would happen here
+          }
+        }, delay: 1000, message: 'Step 3: AI confirms flood event' },
+      { action: () => createIncidentFromPrediction('R-047'), delay: 1000, message: 'Step 4: Incident automatically created' },
+      { action: () => { 
+          const drain = state.drains.find(d => d.id === 'D-182');
+          if (drain) {
+            dispatch({ type: 'UPDATE_DRAIN', payload: { id: 'D-182', status: 'blocked', blockageProbability: 92 } });
+          }
+        }, delay: 1000, message: 'Step 5: Drain D-182 blockage identified' },
+      { action: () => { 
+          const availableTeams = state.teams.filter(t => t.status === 'idle' && t.type === 'drainage');
+          if (availableTeams.length > 0) {
+            assignTeamToIncident(state.incidents[0]?.id || '', availableTeams[0].id);
+          }
+        }, delay: 1000, message: 'Step 6: Team 04 assigned' },
+      { action: () => { 
+          const incident = state.incidents[0];
+          if (incident) {
+            resolveIncident(incident.id, {
+              beforeImageUrl: '',
+              afterImageUrl: '',
+              sensorVerification: true,
+              cameraVerification: true,
+              aiVerification: true,
+              verifiedAt: new Date(),
+              verifiedBy: 'FloodLens AI',
+              notes: 'Road cleared, water level normalized',
+            });
+          }
+        }, delay: 1000, message: 'Step 7: Team responds and resolves' },
+      { action: () => { setDemoStep(0); }, delay: 1000, message: 'Step 8: AI verified resolution complete' },
+    ];
+
+    for (const step of steps) {
+      step.action();
+      await new Promise(r => setTimeout(r, step.delay));
+    }
+  };
+
   const value = useMemo(() => ({
     ...state,
     cameras: mockCameraFeeds,
@@ -703,6 +782,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     navigate: (path: string) => {
       // Navigation handled by react-router, this is a placeholder
     },
+    toggleDemoMode,
+    setDemoStep,
+    runDemoScenario,
   }), [state]);
 
   return (
