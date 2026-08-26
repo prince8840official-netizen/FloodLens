@@ -6,7 +6,7 @@ import {
   Route, GitBranch, Video, Users, MessageSquare,
   BarChart, Clock, Lightbulb, FlaskConical, 
   Bell, Settings, ChevronLeft, ChevronRight,
-  Zap, Shield, Database, Globe
+  Zap, Shield, Database, Globe, Camera
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -18,6 +18,7 @@ const navigation = [
   { id: 'roads', label: 'Road Intelligence', icon: Route, path: '/roads' },
   { id: 'drainage', label: 'Drainage Network', icon: GitBranch, path: '/drainage' },
   { id: 'roadeye', label: 'RoadEye AI', icon: Video, path: '/roadeye' },
+  { id: 'roadwatch', label: 'RoadWatch', icon: Camera, path: '/roadwatch' },
   { id: 'teams', label: 'Response Teams', icon: Users, path: '/teams' },
   { id: 'citizen-reports', label: 'Citizen Reports', icon: MessageSquare, path: '/citizen-reports' },
   { id: 'analytics', label: 'Analytics', icon: BarChart, path: '/analytics' },
@@ -30,9 +31,9 @@ const navigation = [
 
 const roleNavigation: Record<string, typeof navigation> = {
   'control-officer': navigation,
-  'drainage-engineer': navigation.filter(n => ['overview', 'map', 'predictions', 'incidents', 'roads', 'drainage', 'roadeye', 'recommendations', 'simulation', 'analytics', 'history', 'settings'].includes(n.id)),
-  'response-team': navigation.filter(n => ['overview', 'map', 'incidents', 'teams', 'notifications', 'settings'].includes(n.id)),
-  'citizen': navigation.filter(n => ['map', 'citizen-reports', 'notifications', 'settings'].includes(n.id)),
+  'drainage-engineer': navigation.filter(n => ['overview', 'map', 'predictions', 'incidents', 'roads', 'drainage', 'roadeye', 'roadwatch', 'recommendations', 'simulation', 'analytics', 'history', 'settings'].includes(n.id)),
+  'response-team': navigation.filter(n => ['overview', 'map', 'incidents', 'teams', 'roadwatch', 'notifications', 'settings'].includes(n.id)),
+  'citizen': navigation.filter(n => ['map', 'citizen-reports', 'roadwatch', 'notifications', 'settings'].includes(n.id)),
 };
 
 export function Sidebar() {

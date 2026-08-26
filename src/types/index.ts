@@ -284,6 +284,92 @@ export interface User {
   permissions: string[];
 }
 
+export type RoadWatchSeverity = 'low' | 'moderate' | 'high' | 'critical';
+export type RoadWatchStatus = 'reported' | 'under-review' | 'assigned' | 'field-response' | 'resolved' | 'verified';
+export type CameraSource = 'mobile' | 'dashcam' | 'cctv';
+
+export interface RoadWatchDetection {
+  waterloggingDetected: boolean;
+  severity: RoadWatchSeverity;
+  confidence: number;
+  affectedArea: string;
+  possibleCause: string;
+  recommendedAction: string;
+  estimatedVisualSeverity: string;
+}
+
+export interface RoadWatchLocation {
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+  timestamp: Date;
+  address?: string;
+}
+
+export interface RoadWatchIncident {
+  id: string;
+  detectionType: 'mobile-camera';
+  issue: 'waterlogging' | 'drainage-problem' | 'drain-overflow' | 'blockage' | 'road-damage';
+  severity: RoadWatchSeverity;
+  confidence: number;
+  location: RoadWatchLocation;
+  imageUrl: string;
+  thumbnailUrl?: string;
+  detection: RoadWatchDetection;
+  possibleCause: string;
+  affectedRoad?: string;
+  recommendedAction: string;
+  reporterSource: 'roadwatch-mobile-camera';
+  status: RoadWatchStatus;
+  priority: 'low' | 'moderate' | 'high' | 'critical';
+  createdAt: Date;
+  updatedAt: Date;
+  assignedTeamId?: string;
+  assignedTeamName?: string;
+  municipalReference?: string;
+  duplicateGroupId?: string;
+  reportCount: number;
+  generativeReport: string;
+}
+
+export interface RoadWatchAnalysisResult {
+  detection: RoadWatchDetection;
+  generativeReport: string;
+  isDemoAnalysis: boolean;
+}
+
+export interface CameraState {
+  hasPermission: boolean;
+  stream: MediaStream | null;
+  facingMode: 'environment' | 'user';
+  error: string | null;
+}
+
+export interface RoadWatchSettings {
+  enabled: boolean;
+  municipalEndpoint: string;
+  apiKey: string;
+  enableAIVision: boolean;
+  aiVisionEndpoint: string;
+  aiVisionApiKey: string;
+  duplicateDetectionRadius: number;
+  duplicateDetectionTimeWindow: number;
+}
+
+export interface MunicipalEndpoint {
+  id: string;
+  name: string;
+  type: 'api' | 'email' | 'webhook' | 'phone';
+  endpoint: string;
+  apiKey?: string;
+  contactPerson?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  isActive: boolean;
+  wards?: string[];
+  zones?: string[];
+}
+
 export interface AppSettings {
   alerts: {
     rainfallThreshold: number;
@@ -315,5 +401,15 @@ export interface AppSettings {
     allowSelfRegistration: boolean;
     defaultRole: UserRole;
     sessionTimeout: number; // minutes
+  };
+  roadwatch: {
+    enabled: boolean;
+    municipalEndpoint: string;
+    apiKey: string;
+    enableAIVision: boolean;
+    aiVisionEndpoint: string;
+    aiVisionApiKey: string;
+    duplicateDetectionRadius: number; // meters
+    duplicateDetectionTimeWindow: number; // minutes
   };
 }

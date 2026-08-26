@@ -1536,6 +1536,16 @@ export const defaultSettings: AppSettings = {
     defaultRole: 'citizen',
     sessionTimeout: 480,
   },
+  roadwatch: {
+    enabled: true,
+    municipalEndpoint: 'https://api.kanpur.gov.in/floodlens/incidents',
+    apiKey: '',
+    enableAIVision: false,
+    aiVisionEndpoint: '',
+    aiVisionApiKey: '',
+    duplicateDetectionRadius: 100,
+    duplicateDetectionTimeWindow: 30,
+  },
 };
 
 export const getSeverityColor = (severity: Severity): string => {

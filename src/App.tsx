@@ -16,6 +16,7 @@ import { Roads } from './pages/app/Roads';
 import { RoadDetails } from './pages/app/RoadDetails';
 import { Drainage } from './pages/app/Drainage';
 import { RoadEye } from './pages/app/RoadEye';
+import { RoadWatch } from './pages/app/RoadWatch';
 import { Teams } from './pages/app/Teams';
 import { CitizenReports } from './pages/app/CitizenReports';
 import { Analytics } from './pages/app/Analytics';
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/roads/:id" element={<RoadDetails />} />
             <Route path="/drainage" element={<Drainage />} />
             <Route path="/roadeye" element={<RoadEye />} />
+            <Route path="/roadwatch" element={<RoadWatch />} />
             <Route path="/teams" element={<Teams />} />
             <Route path="/citizen-reports" element={<CitizenReports />} />
             <Route path="/analytics" element={<Analytics />} />

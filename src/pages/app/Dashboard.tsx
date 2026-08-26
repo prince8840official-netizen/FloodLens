@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import { 
   AlertTriangle, MapPin, Droplets, Users, CheckCircle, 
   ChevronRight, Map, ListChecks, Route, GitBranch, 
-  Video, BarChart, Clock, Lightbulb, FlaskConical, Bell, Settings
+  Video, BarChart, Clock, Lightbulb, FlaskConical, Bell, Settings, Camera
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -177,6 +177,15 @@ export function Dashboard() {
               <h2 className="font-semibold text-flood-text">Quick Actions</h2>
             </div>
             <CardContent className="space-y-3 p-4">
+              <Link to="/roadwatch">
+                <Button variant="primary" className="w-full justify-start gap-3" icon={<Camera className="w-5 h-5" />}>
+                  <div>
+                    <p className="font-medium text-white">📷 RoadWatch — Report Waterlogging</p>
+                    <p className="text-xs text-flood-primary/80">Capture road image → Auto-generate incident report → Municipal action</p>
+                  </div>
+                  <Badge variant="warning" className="ml-auto">NEW</Badge>
+                </Button>
+              </Link>
               <Link to="/predictions"><Button variant="secondary" className="w-full justify-start gap-3" icon={<AlertTriangle className="w-5 h-5" />}><div><p className="font-medium text-flood-text">View Flood Predictions</p><p className="text-xs text-flood-muted">6-hour road-level nowcast</p></div></Button></Link>
               <Link to="/roadeye"><Button variant="secondary" className="w-full justify-start gap-3" icon={<Video className="w-5 h-5" />}><div><p className="font-medium text-flood-text">RoadEye AI Cameras</p><p className="text-xs text-flood-muted">Live CCTV & dashcam detection</p></div></Button></Link>
               <Link to="/drainage"><Button variant="secondary" className="w-full justify-start gap-3" icon={<GitBranch className="w-5 h-5" />}><div><p className="font-medium text-flood-text">Drainage Digital Twin</p><p className="text-xs text-flood-muted">Network stress & blockages</p></div></Button></Link>
