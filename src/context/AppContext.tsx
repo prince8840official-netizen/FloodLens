@@ -52,6 +52,7 @@ interface AppState {
   mapZoom: number;
   activeMapLayers: string[];
   sidebarCollapsed: boolean;
+  sidebarOpen: boolean;
   rightDrawerOpen: boolean;
   rightDrawerContent: string | null;
   loading: boolean;
@@ -81,6 +82,8 @@ type AppAction =
   | { type: 'SET_ACTIVE_LAYERS'; payload: string[] }
   | { type: 'TOGGLE_SIDEBAR' }
   | { type: 'SET_SIDEBAR_COLLAPSED'; payload: boolean }
+  | { type: 'TOGGLE_SIDEBAR_OPEN' }
+  | { type: 'SET_SIDEBAR_OPEN'; payload: boolean }
   | { type: 'OPEN_RIGHT_DRAWER'; payload: string }
   | { type: 'CLOSE_RIGHT_DRAWER' }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<AppSettings> }
@@ -113,6 +116,7 @@ const initialState: AppState = {
   mapZoom: 13,
   activeMapLayers: ['flooded-roads', 'flood-predictions', 'blocked-drains', 'response-teams'],
   sidebarCollapsed: false,
+  sidebarOpen: true,
   rightDrawerOpen: false,
   rightDrawerContent: null,
   loading: false,
@@ -238,9 +242,15 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'TOGGLE_SIDEBAR':
       return { ...state, sidebarCollapsed: !state.sidebarCollapsed };
     
-    case 'SET_SIDEBAR_COLLAPSED':
+case 'SET_SIDEBAR_COLLAPSED':
       return { ...state, sidebarCollapsed: action.payload };
-    
+     
+    case 'TOGGLE_SIDEBAR_OPEN':
+      return { ...state, sidebarOpen: !state.sidebarOpen };
+     
+    case 'SET_SIDEBAR_OPEN':
+      return { ...state, sidebarOpen: action.payload };
+     
     case 'OPEN_RIGHT_DRAWER':
       return { ...state, rightDrawerOpen: true, rightDrawerContent: action.payload };
     
@@ -304,6 +314,7 @@ interface AppContextType {
   mapZoom: number;
   activeMapLayers: string[];
   sidebarCollapsed: boolean;
+  sidebarOpen: boolean;
   rightDrawerOpen: boolean;
   rightDrawerContent: string | null;
   loading: boolean;
@@ -330,6 +341,8 @@ interface AppContextType {
   setActiveMapLayers: (layers: string[]) => void;
   logout: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebarOpen: () => void;
   navigate: (path: string) => void;
   toggleDemoMode: () => void;
   setDemoStep: (step: number) => void;
@@ -752,7 +765,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const value = useMemo(() => ({
+const value = useMemo(() => ({
     ...state,
     cameras: mockCameraFeeds,
     dispatch,
@@ -778,6 +791,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     setSidebarCollapsed: (collapsed: boolean) => {
       dispatch({ type: 'SET_SIDEBAR_COLLAPSED', payload: collapsed });
+    },
+    setSidebarOpen: (open: boolean) => {
+      dispatch({ type: 'SET_SIDEBAR_OPEN', payload: open });
+    },
+    toggleSidebarOpen: () => {
+      dispatch({ type: 'TOGGLE_SIDEBAR_OPEN' });
     },
     navigate: (path: string) => {
       // Navigation handled by react-router, this is a placeholder

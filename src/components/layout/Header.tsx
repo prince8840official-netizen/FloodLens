@@ -1,14 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { clsx } from 'clsx';
-import { Search, Bell, HelpCircle, User, LogOut, ChevronDown, Menu, X, Settings, Route, GitBranch, AlertTriangle, Users, Zap } from 'lucide-react';
+import { Search, Bell, User, LogOut, ChevronDown, Menu, X, Settings, Route, GitBranch, AlertTriangle, Users, Zap } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../ui/Button';
-import { Modal } from '../ui/Modal';
 import { Tooltip } from '../ui/Tooltip';
-import { mockUsers } from '../../data/mockData';
-import type { UserRole, Road, FloodIncident, Drain, ResponseTeam } from '../../types';
 import { useToast } from '../ui/Toast';
+import type { UserRole, Road, FloodIncident, Drain, ResponseTeam } from '../../types';
 
 function isRoad(obj: any): obj is Road { return 'name' in obj && 'floodScore' in obj; }
 function isIncident(obj: any): obj is FloodIncident { return 'roadName' in obj && 'id' in obj && !('type' in obj); }
@@ -16,13 +14,12 @@ function isTeam(obj: any): obj is ResponseTeam { return 'type' in obj && 'name' 
 function isDrain(obj: any): obj is Drain { return 'capacity' in obj; }
 
 export function Header() {
-  const { currentUser, userRole, dispatch, unreadNotificationCount, notifications, logout, roads, incidents, drains, teams, onRoadClick, onIncidentClick, onDrainClick, onTeamClick, onMapClick, demoMode, toggleDemoMode, runDemoScenario } = useApp();
+  const { currentUser, userRole, dispatch, unreadNotificationCount, notifications, roads, incidents, drains, teams, onRoadClick, onIncidentClick, onDrainClick, onTeamClick, onMapClick, demoMode, toggleDemoMode, runDemoScenario, sidebarOpen, toggleSidebarOpen } = useApp();
   const { toast } = useToast();
   const routerNavigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -115,11 +112,11 @@ export function Header() {
       <Tooltip content="Toggle menu">
         <button
           className="lg:hidden p-2 rounded-lg text-flood-text hover:bg-flood-border mr-2"
-          onClick={() => setShowMobileMenu(!showMobileMenu)}
+          onClick={() => toggleSidebarOpen()}
           aria-label="Toggle menu"
-          aria-expanded={showMobileMenu}
+          aria-expanded={sidebarOpen}
         >
-          {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </Tooltip>
 

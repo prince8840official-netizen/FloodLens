@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, NavLink } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { 
@@ -6,7 +6,7 @@ import {
   Route, GitBranch, Video, Users, MessageSquare,
   BarChart, Clock, Lightbulb, FlaskConical, 
   Bell, Settings, ChevronLeft, ChevronRight,
-  Zap, Shield, Database, Globe, Camera, Building2
+  Zap, Shield, Database, Globe, Camera, Building2, X
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -39,17 +39,111 @@ const roleNavigation: Record<string, typeof navigation> = {
 };
 
 export function Sidebar() {
-  const { sidebarCollapsed, setSidebarCollapsed, userRole, dispatch } = useApp();
+  const { sidebarCollapsed, setSidebarCollapsed, sidebarOpen, setSidebarOpen, userRole, dispatch } = useApp();
   const location = useLocation();
   const [hovered, setHovered] = useState(false);
-  const isCollapsed = sidebarCollapsed && !hovered;
+  const [isMobile, setIsMobile] = useState(false);
   
-  const currentNav = roleNavigation[userRole] || navigation;
+  const isCollapsed = sidebarCollapsed && !hovered;
+  const isDesktop = !isMobile;
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Close sidebar on navigation on mobile
+  const handleNavClick = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
+  if (isMobile) {
+    return (
+      <>
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+        <aside 
+          className={clsx(
+            'fixed left-0 top-0 z-50 h-screen bg-flood-card border-r border-flood-border transition-transform duration-300 ease-in-out flex flex-col lg:hidden',
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          )}
+          aria-label="Main navigation"
+          role="navigation"
+        >
+          <div className='flex items-center justify-between h-16 px-4 border-b border-flood-border'>
+            <Link to="/dashboard" className="flex items-center gap-2" aria-label="FloodLens Home" onClick={handleNavClick}>
+              <div className="w-8 h-8 rounded-lg bg-flood-primary flex items-center justify-center flex-shrink-0">
+                <Zap className="w-5 h-5 text-flood-bg" />
+              </div>
+              <span className="text-xl font-bold text-flood-text">FloodLens</span>
+            </Link>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-1 rounded-lg text-flood-muted hover:text-flood-text hover:bg-flood-border transition-colors"
+              aria-label="Close sidebar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <nav className="flex-1 overflow-y-auto p-3 space-y-1" aria-label="Navigation">
+            {roleNavigation[userRole]?.map(item => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path + '/'));
+              return (
+                <NavLink
+                  key={item.id}
+                  to={item.path}
+                  onClick={handleNavClick}
+                  className={({ isActive: active }) => clsx(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                    'group',
+                    active 
+                      ? 'bg-flood-primary/10 text-flood-primary border border-flood-primary/30' 
+                      : 'text-flood-muted hover:text-flood-text hover:bg-flood-card/50'
+                  )}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+                  <span className="truncate">{item.label}</span>
+                </NavLink>
+              );
+            }) || []}
+          </nav>
+
+          <div className='p-3 border-t border-flood-border'>
+            <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-flood-bg border border-flood-border">
+              <Shield className="w-5 h-5 text-flood-success flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-flood-text truncate">System Status</p>
+                <p className="text-xs text-flood-success flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-flood-success animate-pulse" />
+                  All Systems Operational
+                </p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </>
+    );
+  }
+
+  // Desktop sidebar (existing behavior)
   return (
     <aside 
       className={clsx(
-        'fixed left-0 top-0 z-40 h-screen bg-flood-card border-r border-flood-border transition-all duration-300 flex flex-col',
+        'fixed left-0 top-0 z-40 h-screen bg-flood-card border-r border-flood-border transition-all duration-300 flex flex-col hidden lg:flex',
         isCollapsed ? 'w-16' : 'w-64'
       )}
       onMouseEnter={() => setHovered(true)}
@@ -77,7 +171,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3 space-y-1" aria-label="Navigation">
-        {currentNav.map(item => {
+        {(roleNavigation[userRole] || navigation).map(item => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path + '/'));
           return (
