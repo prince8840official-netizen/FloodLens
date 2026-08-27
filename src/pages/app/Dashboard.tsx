@@ -183,7 +183,6 @@ export function Dashboard() {
                     <p className="font-medium text-flood-text">📷 RoadWatch — Report Waterlogging</p>
                     <p className="text-xs text-flood-muted">Capture road image → Auto-generate incident report → Municipal action</p>
                   </div>
-                  <Badge variant="warning" className="ml-auto shrink-0">NEW</Badge>
                 </Button>
               </Link>
               <Link to="/predictions"><Button variant="secondary" className="w-full justify-start gap-3" icon={<AlertTriangle className="w-5 h-5" />}><div className="flex-1 min-w-0"><p className="font-medium text-flood-text">View Flood Predictions</p><p className="text-xs text-flood-muted">6-hour road-level nowcast</p></div></Button></Link>
