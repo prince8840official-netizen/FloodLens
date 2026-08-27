@@ -178,19 +178,19 @@ export function Dashboard() {
             </div>
             <CardContent className="space-y-3 p-4">
               <Link to="/roadwatch">
-                <Button variant="primary" className="w-full justify-start gap-3" icon={<Camera className="w-5 h-5" />}>
-                  <div>
-                    <p className="font-medium text-white">📷 RoadWatch — Report Waterlogging</p>
-                    <p className="text-xs text-flood-primary/80">Capture road image → Auto-generate incident report → Municipal action</p>
+                <Button variant="secondary" className="w-full justify-start gap-3 btn-primary-cta" icon={<Camera className="w-5 h-5" />}>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-flood-text">📷 RoadWatch — Report Waterlogging</p>
+                    <p className="text-xs text-flood-muted">Capture road image → Auto-generate incident report → Municipal action</p>
                   </div>
-                  <Badge variant="warning" className="ml-auto">NEW</Badge>
+                  <Badge variant="warning" className="ml-auto shrink-0">NEW</Badge>
                 </Button>
               </Link>
-              <Link to="/predictions"><Button variant="secondary" className="w-full justify-start gap-3" icon={<AlertTriangle className="w-5 h-5" />}><div><p className="font-medium text-flood-text">View Flood Predictions</p><p className="text-xs text-flood-muted">6-hour road-level nowcast</p></div></Button></Link>
-              <Link to="/roadeye"><Button variant="secondary" className="w-full justify-start gap-3" icon={<Video className="w-5 h-5" />}><div><p className="font-medium text-flood-text">RoadEye AI Cameras</p><p className="text-xs text-flood-muted">Live CCTV & dashcam detection</p></div></Button></Link>
-              <Link to="/drainage"><Button variant="secondary" className="w-full justify-start gap-3" icon={<GitBranch className="w-5 h-5" />}><div><p className="font-medium text-flood-text">Drainage Digital Twin</p><p className="text-xs text-flood-muted">Network stress & blockages</p></div></Button></Link>
-              <Link to="/recommendations"><Button variant="secondary" className="w-full justify-start gap-3" icon={<Lightbulb className="w-5 h-5" />}><div><p className="font-medium text-flood-text">AI Recommendations</p><p className="text-xs text-flood-muted">Priority actions & insights</p></div></Button></Link>
-              <Link to="/simulation"><Button variant="secondary" className="w-full justify-start gap-3" icon={<FlaskConical className="w-5 h-5" />}><div><p className="font-medium text-flood-text">Run What-If Simulation</p><p className="text-xs text-flood-muted">Test drainage interventions</p></div></Button></Link>
+              <Link to="/predictions"><Button variant="secondary" className="w-full justify-start gap-3" icon={<AlertTriangle className="w-5 h-5" />}><div className="flex-1 min-w-0"><p className="font-medium text-flood-text">View Flood Predictions</p><p className="text-xs text-flood-muted">6-hour road-level nowcast</p></div></Button></Link>
+              <Link to="/roadeye"><Button variant="secondary" className="w-full justify-start gap-3" icon={<Video className="w-5 h-5" />}><div className="flex-1 min-w-0"><p className="font-medium text-flood-text">RoadEye AI Cameras</p><p className="text-xs text-flood-muted">Live CCTV & dashcam detection</p></div></Button></Link>
+              <Link to="/drainage"><Button variant="secondary" className="w-full justify-start gap-3" icon={<GitBranch className="w-5 h-5" />}><div className="flex-1 min-w-0"><p className="font-medium text-flood-text">Drainage Digital Twin</p><p className="text-xs text-flood-muted">Network stress & blockages</p></div></Button></Link>
+              <Link to="/recommendations"><Button variant="secondary" className="w-full justify-start gap-3" icon={<Lightbulb className="w-5 h-5" />}><div className="flex-1 min-w-0"><p className="font-medium text-flood-text">AI Recommendations</p><p className="text-xs text-flood-muted">Priority actions & insights</p></div></Button></Link>
+              <Link to="/simulation"><Button variant="secondary" className="w-full justify-start gap-3" icon={<FlaskConical className="w-5 h-5" />}><div className="flex-1 min-w-0"><p className="font-medium text-flood-text">Run What-If Simulation</p><p className="text-xs text-flood-muted">Test drainage interventions</p></div></Button></Link>
             </CardContent>
           </Card>
 
